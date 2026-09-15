@@ -55,3 +55,37 @@ code, so the rules exist ahead of the tooling that follows them.
 
 **Practice:** tests written first, committed at green alongside the implementation that
 satisfies them, refactors as separate commits.
+
+
+## Backend design
+
+**Tool:** Claude Opus (conversational) → `docs/backend_developer_doc.md`
+
+Worked through the schema and API surface, then wrote the backend doc as an ordered build
+sequence rather than a specification — each step being one red-green cycle with its tests
+and acceptance stated.
+
+**Accepted:**
+- Separate `EmploymentPeriod` table rather than a boolean flag, so historical headcount
+  resolves status as of the reported date instead of today's.
+- Exclusion constraints with `btree_gist`. I initially wanted to skip them as unfamiliar and
+  validate in Python; the constraint holds regardless of write path, which Python validation
+  doesn't.
+- Corrections amend amounts only. Editing period dates is inherently a multi-period
+  operation and became a documented scope exclusion.
+- `AbstractBaseUser` with a custom manager, no link to `Employee` — employees are records,
+  not accounts.
+
+**Overrode:**
+- Rejected the first draft's specification format. A build sequence suits how the work is
+  actually done and produces commit history sized to one behaviour.
+- Switched to committing failing tests before implementation, against the advice to commit
+  at green. Broken commits in history are a real cost; visible TDD is worth more here.
+- Country as a reference table rather than choices, for consistency with department and
+  role across the API, frontend and upload validation.
+
+**My calls:**
+- Generic views for CRUD, APIViews for operations and reports, URLs declared by hand so the
+  absence of DELETE routes is visible.
+- Session auth over JWT — statelessness and multiple clients are both out of scope.
+- Apps split by domain with a shared `common/` for interval logic used by both period models.
