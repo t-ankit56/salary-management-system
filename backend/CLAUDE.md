@@ -16,11 +16,40 @@ the host.
 
 ## Structure
 
-_To be completed once the project skeleton exists._
+```
+backend/
+  config/               Django project package — settings, urls, wsgi, asgi
+  common/               shared app; currently holds the Step 1 smoke tests
+  accounts/             accounts.User stub (fields only; manager arrives in Step 2)
+  employees/            registered in INSTALLED_APPS, no files yet
+  salary/               registered in INSTALLED_APPS, no files yet
+  reporting/            registered in INSTALLED_APPS, no files yet
+  imports/              registered in INSTALLED_APPS, no files yet
+  manage.py
+  requirements.txt
+  requirements-dev.txt
+  pyproject.toml        pytest and ruff configuration
+  Dockerfile
+  .dockerignore
+```
+
+`docker-compose.yml` and `.env` / `.env.example` live at the repo root, one level up —
+`docker-compose.yml` builds `web` from `backend/` but is shared across services (a future
+frontend included).
 
 ## Commands
 
-_To be completed once the project skeleton exists._
+Everything runs through `docker compose exec`, from the repo root — never on the host.
+
+```
+docker compose up -d                            # start db and web
+docker compose down                             # stop and remove containers
+docker compose exec web pytest                  # run the test suite
+docker compose exec web ruff check .             # lint
+docker compose exec web ruff format .            # format
+docker compose exec web ruff format --check .    # check formatting without writing
+docker compose exec web python manage.py shell -c "<code>"   # one-off shell commands
+```
 
 ## Data integrity
 
