@@ -47,3 +47,20 @@ and asked whether to add a stub or revise the build guide:*
 > Step 2 and get test-driven there.
 >
 > Still no makemigrations or migrate in this step.
+
+
+---
+
+## Step 2 — User model
+
+**Claude Code (Sonnet)**
+
+> Step 2. accounts/models.py already has a field-only stub from Step 1 — extend it, don't
+> start over.
+>
+> Write the failing tests first and stop. Do not implement yet.
+
+It stopped and flagged that 3 out of 4 tests cannot run without creating migrations. 
+> Yes, run makemigrations accounts and then show me that all 4 test are failing for the right reasons 
+
+> now implement the manager to make them pass
