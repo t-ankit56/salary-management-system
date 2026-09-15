@@ -110,3 +110,19 @@ for.
 **My call:** accepted a stub model in step 1 rather than revising the build guide. A bare
 class declaration is scaffolding, not behaviour, so nothing testable was written without a
 test.
+
+
+## Step 2 — User model
+
+**Tool:** Claude Code (Sonnet) → `accounts/`
+
+**Conflict it surfaced:** three of the four tests errored during test-database setup rather
+than failing on the assertion — `accounts` had no migration, so `PermissionsMixin`'s M2M
+tables were created by syncdb before `auth`'s own migrations ran. Step 1 forbade
+`makemigrations` and Step 2 was silent on it, so it stopped and asked.
+
+**My call:** authorised the initial migration. The Step 1 prohibition existed to stop
+`AUTH_USER_MODEL` being baked into a migration before the setting was correct; that was
+settled, so the prohibition had outlived its purpose. A build-guide gap, not an overreach.
+
+**Overrode:** nothing.
