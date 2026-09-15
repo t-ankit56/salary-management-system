@@ -15,9 +15,11 @@ Scope and rationale: `docs/requirements.md`
 Development is test-first. Every behaviour is built in a red-green-refactor cycle.
 
 - Write the failing test first, and run it to confirm it fails for the expected reason.
+- Commit the failing test as `test: <behaviour> (red)` before implementing.
 - Implement the minimum that makes it pass. Nothing more.
-- Refactor only once green, as a separate step with tests still passing.
-- One behaviour per cycle. Commit at each green.
+- Commit the implementation as `feat:` or `fix:` once green.
+- Refactor only once green, as a separate commit with tests still passing.
+- One behaviour per cycle. Every cycle produces at least two commits.
 - Do not add functionality that no current test requires.
 - Do not weaken, skip, or delete a test to make a suite pass. A failing test is
   information; find out what it is telling you.
@@ -44,13 +46,14 @@ preferences.
 
 ## Commits
 
-Small and frequent, one behaviour each. Conventional Commit prefixes:
+Small and frequent, one behaviour each. Every red-green cycle is committed as a pair: the
+failing test, then the implementation. Conventional Commit prefixes:
 
 | Prefix | Use |
 |---|---|
 | `feat:` | New functionality |
 | `fix:` | Bug fixes |
-| `test:` | Adding or updating tests |
+| `test:` |  A failing test, committed before its implementation; or test-only changes  |
 | `refactor:` | Restructuring without behaviour change |
 | `docs:` | Documentation only, including the AI workflow log and prompt log |
 | `chore:` | Setup, config, non-feature work |
