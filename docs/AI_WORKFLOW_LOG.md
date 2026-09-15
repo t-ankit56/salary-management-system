@@ -89,3 +89,24 @@ and acceptance stated.
   absence of DELETE routes is visible.
 - Session auth over JWT — statelessness and multiple clients are both out of scope.
 - Apps split by domain with a shared `common/` for interval logic used by both period models.
+
+
+## Step 1 — Skeleton
+
+**Tool:** Claude Code (Sonnet) → project scaffolding
+
+**Overrode:** Nothing. It stopped twice rather than guessing, which is what CLAUDE.md asks
+for.
+
+**Conflicts it surfaced, both real gaps in my build guide:**
+- Django cannot boot with `AUTH_USER_MODEL` pointing at a model that does not exist —
+  `contrib.auth`'s `AppConfig.ready()` calls `get_user_model()` unconditionally. My step 1
+  specified the setting with no model. Resolved with a field-only stub; the manager stays
+  test-driven in step 2.
+- The database smoke test used `@pytest.mark.django_db`, which builds a test database via
+  migrate — contradicting "no migrations in step 1". Rewritten as a plain psycopg
+  connection using the same settings, which still proves `DB_HOST` resolves.
+
+**My call:** accepted a stub model in step 1 rather than revising the build guide. A bare
+class declaration is scaffolding, not behaviour, so nothing testable was written without a
+test.
