@@ -160,3 +160,11 @@ it should live:*
 registered, not even the custom `User` model:*
 
 > yes, add admin.py registrations for accounts and employees
+
+> change the superuser password to 1234
+
+*Reported an actual admin error hit while using it:*
+
+> 'date_joined' cannot be specified for User model form as it is a non-editable field. Check
+> fields/fieldsets/exclude attributes of class UserAdmin.
+> an error I am getting in admin

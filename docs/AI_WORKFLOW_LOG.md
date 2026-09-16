@@ -216,3 +216,9 @@ plain registration.
 **Noted for later:** a freshly created file isn't picked up by Django's autoreloader until
 the next restart — it only watches already-imported modules — so the new `admin.py` needed
 `docker compose restart web` before it took effect on the already-running server.
+
+**Gap in its own verification:** it checked that the admin list pages loaded (200 for each
+app's changelist) but never opened an actual change form. `date_joined` uses
+`auto_now_add=True`, which Django makes non-editable, but `UserAdmin.fieldsets` still listed
+it — a `ModelForm` error that only surfaces on the `User` change page specifically, which
+its curl checks never hit. Found by hand, fixed by adding it to `readonly_fields`.
