@@ -44,3 +44,11 @@ def create_employee(
             effective_from=salary_effective_from,
         )
     return employee
+
+
+def deactivate_employee(*, employee: Employee, effective_date: datetime.date) -> EmploymentPeriod:
+    pass
+
+
+def reactivate_employee(*, employee: Employee, effective_date: datetime.date) -> EmploymentPeriod:
+    pass
