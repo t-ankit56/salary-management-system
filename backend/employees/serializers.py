@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from employees.models import Country, Department, Employee, Role
+from employees.services import create_employee
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -22,6 +23,16 @@ class CountrySerializer(serializers.ModelSerializer):
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
+    base = serializers.DecimalField(max_digits=12, decimal_places=2, write_only=True)
+    allowance = serializers.DecimalField(
+        max_digits=12, decimal_places=2, write_only=True, default=0
+    )
+    yearly_bonus = serializers.DecimalField(
+        max_digits=12, decimal_places=2, write_only=True, default=0
+    )
+    currency = serializers.CharField(max_length=3, write_only=True, default="USD")
+    salary_effective_from = serializers.DateField(write_only=True)
+
     class Meta:
         model = Employee
         fields = [
@@ -36,4 +47,12 @@ class EmployeeSerializer(serializers.ModelSerializer):
             "hire_date",
             "created_at",
             "updated_at",
+            "base",
+            "allowance",
+            "yearly_bonus",
+            "currency",
+            "salary_effective_from",
         ]
+
+    def create(self, validated_data):
+        return create_employee(**validated_data)
