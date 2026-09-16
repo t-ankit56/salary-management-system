@@ -1,10 +1,9 @@
 import datetime
 from decimal import Decimal
 
-from django.db.models import Avg, Count, F, Q, QuerySet
+from django.db.models import Avg, Count, F, Q, QuerySet, Sum
 from django.utils import timezone
 
-from common.resolution import resolve_as_of
 from employees.models import Employee, EmploymentPeriod
 from salary.models import SalaryPeriod
 
@@ -50,17 +49,14 @@ def total_payroll_cost(as_of: datetime.date | None = None) -> dict:
     as_of = as_of or timezone.localdate()
     _validate_as_of(as_of)
 
-    total = Decimal(0)
-    excluded_count = 0
+    periods, excluded_count = _employed_salary_periods(as_of)
+    total = periods.aggregate(total=Sum(F("base") + F("allowance") + F("yearly_bonus")))["total"]
 
-    for employee in _employed_employees(as_of):
-        period = resolve_as_of(SalaryPeriod.objects.filter(employee=employee), as_of)
-        if period is None:
-            excluded_count += 1
-            continue
-        total += period.base + period.allowance + period.yearly_bonus
-
-    return {"as_of": as_of, "total_payroll_cost": total, "excluded_count": excluded_count}
+    return {
+        "as_of": as_of,
+        "total_payroll_cost": total or Decimal(0),
+        "excluded_count": excluded_count,
+    }
 
 
 def headcount_by_department(as_of: datetime.date | None = None) -> dict:
