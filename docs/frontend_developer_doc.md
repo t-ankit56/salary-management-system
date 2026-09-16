@@ -149,7 +149,7 @@ anything that assumes CORS exists in production.
 Scaffolding only.
 
 **Vite + React**, plain JavaScript template. **Tailwind CSS** configured against
-`src/**/*.{js,jsx}`. **react-router-dom** for the four routes (`/login`, `/employees`,
+`src/**/*.{js,jsx}`. **react-router-dom** for the routes (`/login`, `/employees`,
 `/employees/:id`, `/employees/new`, `/employees/:id/edit`, `/reports`) plus a redirect from
 `/` to `/employees`.
 
@@ -597,6 +597,11 @@ GET /api/reports/total_payroll_cost/?as_of=2020-01-01  (before earliest salary d
 All six report money values are quoted strings, same as everywhere else in the API. The
 headcount reports carry no money, only integer counts. All six share the same `as_of` /
 too-early-date behaviour, so the too-early-date error is handled once, not per report.
+
+Each report returns its payload under a key equal to the report name requested
+(`total_payroll_cost`, `headcount_by_department`, and so on), alongside the shared `as_of`
+and `excluded_count`. Read it dynamically as `res[name]` in `getReport` — do not write six
+per-report accessors.
 
 **Tests:**
 - changing the as-of date re-requests all six report endpoints with that date
