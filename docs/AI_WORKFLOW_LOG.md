@@ -249,3 +249,16 @@ admin — before starting the other.
 list page, add-form render, *and* a real form submission — before commit, not just a
 page-load check. Direct consequence of the `date_joined` bug slipping past a shallower
 check earlier.
+
+
+## Step 7 — As-of resolution
+
+**Tool:** Claude Code (Sonnet) → `common/resolution.py`
+
+Small, well-specified step — no build-guide gaps, no corrections needed.
+
+**My call:** used `EmploymentPeriod` as the concrete test subject, since it's the model
+already fully built, even though `resolve_as_of` itself is generic over any period-shaped
+queryset — reusable for `SalaryPeriod` once reporting needs it.
+
+**Overrode:** nothing.

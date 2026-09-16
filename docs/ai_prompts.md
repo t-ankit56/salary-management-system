@@ -189,3 +189,12 @@ registered, not even the custom `User` model:*
 > now implement the full model and pass its tests
 
 > add yhis model in admin too before commit
+
+
+## Step 7 — As-of resolution
+
+**Claude Code (Sonnet)**
+
+> let's start with step 7 now
+
+> now implement the full function and pass its tests
