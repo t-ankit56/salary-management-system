@@ -424,4 +424,35 @@ as red.
 
 **Overrode:** nothing.
 
+
+## Step 17 — Seed data
+
+**Tool:** Claude Code (Sonnet) → `employees/management/commands/seed_data.py`
+
+Presented the command design before writing anything — location, what gets seeded and in
+what order, how salary history and the active/inactive mix get built, and one explicit open
+question — rather than building it and reporting back.
+
+**My call:** whether `seed_data` should be safe to re-run against a non-empty dev database.
+Chose clearing `Employee` and reference data first over failing loudly on non-empty tables —
+convenience for repeated local resets outweighs the "employees are never deleted" domain
+rule here, since that rule is about the API layer, not a dev-only reset tool.
+
+**Accepted:**
+- Deactivating a fixed ratio (every 7th employee) instead of a per-employee random draw —
+  a Bernoulli coin flip at low `--count` values in tests risks a rare run with zero
+  inactive employees, which would make the "mix of active and inactive" assertion flaky
+  without being wrong.
+- Capping every generated date (initial salary, later changes, deactivation) at today,
+  which is what makes the zero-exclusion assertion hold without extra bookkeeping: a
+  still-active employee's most recent salary period is never closed, so it always resolves
+  as of today.
+- Fixed lists for department and role names rather than Faker output — Faker has real
+  country data but no provider for job-function department/role naming, and generating
+  either from word-salad providers would produce nonsense reference data.
+- Building emails from `first.last{index}` rather than Faker's `unique` email provider, so
+  uniqueness holds by construction instead of by exhaustion risk at higher `--count` values.
+
+**Overrode:** nothing.
+
 **Overrode:** nothing.
