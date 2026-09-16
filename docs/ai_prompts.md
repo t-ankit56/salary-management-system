@@ -147,3 +147,16 @@ it should live:*
 > now implement the full model and pass its tests
 
 > now implement the endpoints and pass their tests one at a time
+
+
+## Interlude — Local admin access (before Step 6)
+
+**Claude Code (Sonnet)**
+
+> now before starting step 6 lets make all migrations migrate them and run server. Create a
+> superuser so that I can check django admin
+
+*Flagged that the admin site would come up empty — no app has `admin.py` yet, so nothing is
+registered, not even the custom `User` model:*
+
+> yes, add admin.py registrations for accounts and employees

@@ -195,3 +195,24 @@ rather than letting that pacing get discovered mid-step the way it was in Step 3
 **Accepted:** no migration needed for `Employee` either — its three foreign keys
 (department, role, country) are all intra-app, so `syncdb` orders table creation the same
 way it did for Step 4's reference tables.
+
+
+## Interlude — Local admin access
+
+**Tool:** Claude Code (Sonnet) → migrations, `accounts/admin.py`, `employees/admin.py`
+
+Requested outside the build guide's step sequence: real migrations applied to the dev
+database (not just the ephemeral one pytest builds), a running server, and a superuser, so
+the admin site could actually be checked by hand before starting Step 6.
+
+**My call:** flagged that the admin site would come up empty without registrations — Django
+doesn't auto-register a swapped-out custom user model, and nothing else was registered
+either — and asked before adding them.
+
+**Accepted:** the default `UserAdmin` references a `username` field our email-only model
+doesn't have, so it needed a subclass overriding `fieldsets`/`add_fieldsets` rather than
+plain registration.
+
+**Noted for later:** a freshly created file isn't picked up by Django's autoreloader until
+the next restart — it only watches already-imported modules — so the new `admin.py` needed
+`docker compose restart web` before it took effect on the already-running server.
