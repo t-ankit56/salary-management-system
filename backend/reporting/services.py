@@ -1,7 +1,7 @@
 import datetime
 from decimal import Decimal
 
-from django.db.models import Count, Q, QuerySet
+from django.db.models import Avg, Count, F, Q, QuerySet
 from django.utils import timezone
 
 from common.resolution import resolve_as_of
@@ -82,16 +82,78 @@ def headcount_by_department(as_of: datetime.date | None = None) -> dict:
 
 
 def average_salary_by_department(as_of: datetime.date | None = None) -> dict:
-    pass
+    as_of = as_of or timezone.localdate()
+    _validate_as_of(as_of)
+
+    periods, excluded_count = _employed_salary_periods(as_of)
+    rows = (
+        periods.values("employee__department__name")
+        .annotate(avg_salary=Avg(F("base") + F("allowance") + F("yearly_bonus")))
+        .order_by("employee__department__name")
+    )
+
+    return {
+        "as_of": as_of,
+        "average_salary_by_department": {
+            row["employee__department__name"]: row["avg_salary"] for row in rows
+        },
+        "excluded_count": excluded_count,
+    }
 
 
 def average_salary_by_country(as_of: datetime.date | None = None) -> dict:
-    pass
+    as_of = as_of or timezone.localdate()
+    _validate_as_of(as_of)
+
+    periods, excluded_count = _employed_salary_periods(as_of)
+    rows = (
+        periods.values("employee__country__name")
+        .annotate(avg_salary=Avg(F("base") + F("allowance") + F("yearly_bonus")))
+        .order_by("employee__country__name")
+    )
+
+    return {
+        "as_of": as_of,
+        "average_salary_by_country": {
+            row["employee__country__name"]: row["avg_salary"] for row in rows
+        },
+        "excluded_count": excluded_count,
+    }
 
 
 def average_bonus_by_department(as_of: datetime.date | None = None) -> dict:
-    pass
+    as_of = as_of or timezone.localdate()
+    _validate_as_of(as_of)
+
+    periods, excluded_count = _employed_salary_periods(as_of)
+    rows = (
+        periods.values("employee__department__name")
+        .annotate(avg_bonus=Avg("yearly_bonus"))
+        .order_by("employee__department__name")
+    )
+
+    return {
+        "as_of": as_of,
+        "average_bonus_by_department": {
+            row["employee__department__name"]: row["avg_bonus"] for row in rows
+        },
+        "excluded_count": excluded_count,
+    }
 
 
 def headcount_by_country(as_of: datetime.date | None = None) -> dict:
-    pass
+    as_of = as_of or timezone.localdate()
+    _validate_as_of(as_of)
+
+    counts = (
+        _employed_employees(as_of)
+        .values("country__name")
+        .annotate(count=Count("id"))
+        .order_by("country__name")
+    )
+
+    return {
+        "as_of": as_of,
+        "headcount_by_country": {row["country__name"]: row["count"] for row in counts},
+        "excluded_count": 0,
+    }
