@@ -1,7 +1,7 @@
 import pytest
 from rest_framework.test import APIClient
 
-from employees.models import Country, Department, Role
+from employees.models import Country, Department, Employee, Role
 
 
 @pytest.mark.django_db
@@ -43,5 +43,20 @@ def test_country_list_excludes_inactive():
 @pytest.mark.django_db
 def test_country_has_no_create_route():
     response = APIClient().post("/api/countries/", {"name": "France"})
+
+    assert response.status_code == 405
+
+
+def test_delete_employee_returns_405(reference_data):
+    employee = Employee.objects.create(
+        employee_code="E001",
+        first_name="Jane",
+        last_name="Doe",
+        email="jane@example.com",
+        hire_date="2024-01-01",
+        **reference_data,
+    )
+
+    response = APIClient().delete(f"/api/employees/{employee.id}/")
 
     assert response.status_code == 405
