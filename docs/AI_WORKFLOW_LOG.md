@@ -126,3 +126,32 @@ tables were created by syncdb before `auth`'s own migrations ran. Step 1 forbade
 settled, so the prohibition had outlived its purpose. A build-guide gap, not an overreach.
 
 **Overrode:** nothing.
+
+
+## Step 3 — Session authentication endpoints
+
+**Tool:** Claude Code (Sonnet) → `accounts/` (views, urls, services), `config/` (urls,
+settings)
+
+**My call:** built one endpoint at a time — login, then `me`, then `logout` — each reviewed
+and committed green on its own, rather than the build guide's single red/green pair for the
+whole step. Smaller review surface per commit.
+
+**Accepted:**
+- The 401-vs-403 question on `me` settled by checking DRF's actual source rather than by
+  recollection: `get_authenticate_header` only consults the first configured authenticator,
+  and `SessionAuthentication` returns no challenge header, so plain `IsAuthenticated` gives
+  403 for anonymous requests with no extra settings needed.
+- `CORS_ALLOWED_ORIGINS` read from an env var, empty by default — a decision made back
+  during Step 1 planning (production serves the frontend same-origin behind nginx), carried
+  forward and implemented here.
+
+**Overrode:** it reused the `ClassVar` annotation from Step 2's `REQUIRED_FIELDS` fix to
+silence ruff's RUF012 on DRF's `permission_classes`, without checking whether it still fit.
+It doesn't — no DRF code annotates declarative class attributes that way, and the same
+pattern (`permission_classes`, serializer `fields`, filterset fields) recurs constantly in a
+Django/DRF codebase. Ignored RUF012 project-wide instead of annotating every occurrence.
+
+Two process rules added along the way, now in root `CLAUDE.md`: every commit needs a body,
+not just a subject line; and the assistant shows the proposed commit message up front rather
+than waiting to be asked.
