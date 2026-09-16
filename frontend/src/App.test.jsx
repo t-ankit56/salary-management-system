@@ -37,7 +37,7 @@ it('submits credentials and shows the authenticated app on success', async () =>
   fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'correct' } })
   fireEvent.click(screen.getByRole('button', { name: 'Log In' }))
 
-  await waitFor(() => expect(screen.getByText('Employee List')).toBeInTheDocument())
+  await waitFor(() => expect(screen.getByRole('heading', { name: 'Employees' })).toBeInTheDocument())
 
   const loginCall = global.fetch.mock.calls.find(([url]) => url.includes('/api/auth/login/'))
   expect(loginCall).toBeTruthy()
@@ -59,7 +59,7 @@ it('shows an error on a 401 response and does not navigate anywhere', async () =
   fireEvent.click(screen.getByRole('button', { name: 'Log In' }))
 
   await waitFor(() => expect(screen.getByText('Invalid email or password')).toBeInTheDocument())
-  expect(screen.queryByText('Employee List')).not.toBeInTheDocument()
+  expect(screen.queryByRole('heading', { name: 'Employees' })).not.toBeInTheDocument()
 })
 
 it('dispatches the unauthorized event and renders LoginPage on a 403 from any fetch call', async () => {
@@ -70,7 +70,7 @@ it('dispatches the unauthorized event and renders LoginPage on a 403 from any fe
 
   renderApp()
 
-  await waitFor(() => expect(screen.getByText('Employee List')).toBeInTheDocument())
+  await waitFor(() => expect(screen.getByRole('heading', { name: 'Employees' })).toBeInTheDocument())
 
   await apiFetch('/api/employees/999/')
 
