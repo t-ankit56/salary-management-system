@@ -1,7 +1,10 @@
 import datetime
 from decimal import Decimal
 
-from employees.models import Country, Department, Employee, Role
+from django.db import transaction
+
+from employees.models import Country, Department, Employee, EmploymentPeriod, Role
+from salary.models import SalaryPeriod
 
 
 def create_employee(
@@ -20,4 +23,24 @@ def create_employee(
     yearly_bonus: Decimal = 0,
     currency: str = "USD",
 ) -> Employee:
-    pass
+    with transaction.atomic():
+        employee = Employee.objects.create(
+            employee_code=employee_code,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            department=department,
+            role=role,
+            country=country,
+            hire_date=hire_date,
+        )
+        EmploymentPeriod.objects.create(employee=employee, effective_from=hire_date)
+        SalaryPeriod.objects.create(
+            employee=employee,
+            base=base,
+            allowance=allowance,
+            yearly_bonus=yearly_bonus,
+            currency=currency,
+            effective_from=salary_effective_from,
+        )
+    return employee
