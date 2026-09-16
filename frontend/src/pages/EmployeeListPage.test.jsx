@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, expect, it, vi } from 'vitest'
 import EmployeeListPage from './EmployeeListPage'
 
@@ -7,6 +7,17 @@ function renderPage() {
   return render(
     <MemoryRouter>
       <EmployeeListPage />
+    </MemoryRouter>,
+  )
+}
+
+function renderPageWithDetailRoute() {
+  return render(
+    <MemoryRouter initialEntries={['/employees']}>
+      <Routes>
+        <Route path="/employees" element={<EmployeeListPage />} />
+        <Route path="/employees/:id" element={<div>Employee detail stub</div>} />
+      </Routes>
     </MemoryRouter>,
   )
 }
@@ -99,6 +110,17 @@ it('renders department_name/role_name/country_name/status from the response, not
   expect(screen.getByRole('cell', { name: 'Manager' })).toBeInTheDocument()
   expect(screen.getByRole('cell', { name: 'India' })).toBeInTheDocument()
   expect(screen.getByRole('cell', { name: 'Active' })).toBeInTheDocument()
+})
+
+it('clicking a row navigates to that employee\'s detail page', async () => {
+  setupFetch()
+  renderPageWithDetailRoute()
+
+  await waitFor(() => expect(screen.getByText('Jane Doe')).toBeInTheDocument())
+
+  fireEvent.click(screen.getByText('Jane Doe').closest('tr'))
+
+  expect(screen.getByText('Employee detail stub')).toBeInTheDocument()
 })
 
 it('changing page re-requests with the page param and does not follow the next URL from the response', async () => {
