@@ -105,3 +105,27 @@ DRF's `permission_classes`, without checking whether it still fit:
 
 > write a rule in claude.md that whenever you are ready for commit show the commit message
 > and description automatically
+
+
+## Step 4 — Reference data
+
+**Claude Code (Sonnet)**
+
+> let's start with step 4 now
+
+*Two file-creation attempts were rejected with no error explaining why, then:*
+
+> what is happening?
+
+> lets start step 4 fresh
+
+*Presented the plan before writing anything this time — model shape, the tests to be
+written, and one build-guide gap: `Country` isn't mentioned anywhere in the Layout section's
+app listing, unlike `Department`/`Role` which are explicitly under `employees/`. Asked where
+it should live:*
+
+> country will also be in employees
+
+> first implement the models and pass their tests. Endpoints comes later
+
+> now implement the endpoints and pass their tests
