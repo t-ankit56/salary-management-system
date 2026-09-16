@@ -222,3 +222,17 @@ roster upload and Step 17's seed command, both specified to open both periods on
 
 > you need to commit a red test befor wiring it. also commit the previous step 8 commit
 > before this red
+
+
+## Step 9 — Recording a salary change
+
+**Claude Code (Sonnet)**
+
+> lets start step 9
+
+> now implement the full function and pass its tests
+
+*Flagged the same class of gap as Step 8, unprompted this time — checked Steps 10–18 itself
+before reporting it:*
+
+> yes, wire the view now

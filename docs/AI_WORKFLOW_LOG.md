@@ -286,3 +286,18 @@ fix.
 `allowance`, `yearly_bonus`, `currency`, `salary_effective_from` added as declared
 `write_only` serializer fields (not model fields), delegating to `create_employee`. Only
 `create()` changes; `update()` (the `PATCH` path) is untouched.
+
+
+## Step 9 — Recording a salary change
+
+**Tool:** Claude Code (Sonnet) → `salary/services.py`, `salary/views.py`
+
+**Accepted:**
+- Applied the Step 8 lesson on its own this time — flagged the `salary-changes` endpoint
+  gap unprompted, checked Steps 10–18 itself before reporting it, and followed its own
+  red-first discipline for the endpoint fix without needing correction.
+- `record_salary_change` normalizes `effective_from` via `DateField().to_python()` before
+  comparing it to the open period's start, since callers (including tests) may pass a plain
+  string rather than a `date`.
+
+**Overrode:** nothing.
