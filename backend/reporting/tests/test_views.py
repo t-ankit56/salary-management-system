@@ -13,7 +13,7 @@ def test_report_endpoint_requires_authentication():
     assert response.status_code == 403
 
 
-def test_report_endpoint_returns_total_payroll_cost(reference_data):
+def test_report_endpoint_returns_total_payroll_cost(reference_data, user):
     create_employee(
         employee_code="E001",
         first_name="Alice",
@@ -25,13 +25,15 @@ def test_report_endpoint_returns_total_payroll_cost(reference_data):
         **reference_data,
     )
 
-    response = APIClient().get("/api/reports/total_payroll_cost/?as_of=2020-06-01")
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.get("/api/reports/total_payroll_cost/?as_of=2020-06-01")
 
     assert response.status_code == 200
     assert Decimal(response.data["total_payroll_cost"]) == Decimal(50000)
 
 
-def test_report_endpoint_too_early_date_returns_400(reference_data):
+def test_report_endpoint_too_early_date_returns_400(reference_data, user):
     create_employee(
         employee_code="E001",
         first_name="Alice",
@@ -43,12 +45,17 @@ def test_report_endpoint_too_early_date_returns_400(reference_data):
         **reference_data,
     )
 
-    response = APIClient().get("/api/reports/total_payroll_cost/?as_of=2019-01-01")
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.get("/api/reports/total_payroll_cost/?as_of=2019-01-01")
 
     assert response.status_code == 400
 
 
-def test_report_endpoint_unknown_name_returns_404():
-    response = APIClient().get("/api/reports/not_a_real_report/")
+@pytest.mark.django_db
+def test_report_endpoint_unknown_name_returns_404(user):
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.get("/api/reports/not_a_real_report/")
 
     assert response.status_code == 404

@@ -7,11 +7,13 @@ from salary.models import SalaryPeriod
 
 
 @pytest.mark.django_db
-def test_department_list_excludes_inactive():
+def test_department_list_excludes_inactive(user):
     Department.objects.create(name="Engineering", is_active=True)
     Department.objects.create(name="Retired", is_active=False)
 
-    response = APIClient().get("/api/departments/")
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.get("/api/departments/")
 
     names = [d["name"] for d in response.data]
     assert "Engineering" in names
@@ -19,11 +21,13 @@ def test_department_list_excludes_inactive():
 
 
 @pytest.mark.django_db
-def test_role_list_excludes_inactive():
+def test_role_list_excludes_inactive(user):
     Role.objects.create(name="Manager", is_active=True)
     Role.objects.create(name="Retired", is_active=False)
 
-    response = APIClient().get("/api/roles/")
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.get("/api/roles/")
 
     names = [r["name"] for r in response.data]
     assert "Manager" in names
@@ -31,11 +35,13 @@ def test_role_list_excludes_inactive():
 
 
 @pytest.mark.django_db
-def test_country_list_excludes_inactive():
+def test_country_list_excludes_inactive(user):
     Country.objects.create(name="India", is_active=True)
     Country.objects.create(name="Retired", is_active=False)
 
-    response = APIClient().get("/api/countries/")
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.get("/api/countries/")
 
     names = [c["name"] for c in response.data]
     assert "India" in names
@@ -43,13 +49,15 @@ def test_country_list_excludes_inactive():
 
 
 @pytest.mark.django_db
-def test_country_has_no_create_route():
-    response = APIClient().post("/api/countries/", {"name": "France"})
+def test_country_has_no_create_route(user):
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.post("/api/countries/", {"name": "France"})
 
     assert response.status_code == 405
 
 
-def test_delete_employee_returns_405(reference_data):
+def test_delete_employee_returns_405(reference_data, user):
     employee = Employee.objects.create(
         employee_code="E001",
         first_name="Jane",
@@ -59,13 +67,17 @@ def test_delete_employee_returns_405(reference_data):
         **reference_data,
     )
 
-    response = APIClient().delete(f"/api/employees/{employee.id}/")
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.delete(f"/api/employees/{employee.id}/")
 
     assert response.status_code == 405
 
 
-def test_create_employee_via_api_opens_both_periods(reference_data):
-    response = APIClient().post(
+def test_create_employee_via_api_opens_both_periods(reference_data, user):
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.post(
         "/api/employees/",
         {
             "employee_code": "E001",
@@ -88,7 +100,7 @@ def test_create_employee_via_api_opens_both_periods(reference_data):
     assert SalaryPeriod.objects.filter(employee=employee).exists()
 
 
-def test_deactivate_endpoint_closes_open_period(reference_data):
+def test_deactivate_endpoint_closes_open_period(reference_data, user):
     employee = Employee.objects.create(
         employee_code="E001",
         first_name="Jane",
@@ -99,7 +111,9 @@ def test_deactivate_endpoint_closes_open_period(reference_data):
     )
     EmploymentPeriod.objects.create(employee=employee, effective_from="2020-01-01")
 
-    response = APIClient().post(
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.post(
         f"/api/employees/{employee.id}/deactivate/",
         {"effective_date": "2021-01-01"},
         format="json",
@@ -109,7 +123,7 @@ def test_deactivate_endpoint_closes_open_period(reference_data):
     assert EmploymentPeriod.objects.get(employee=employee).effective_to is not None
 
 
-def test_deactivate_endpoint_already_inactive_returns_400(reference_data):
+def test_deactivate_endpoint_already_inactive_returns_400(reference_data, user):
     employee = Employee.objects.create(
         employee_code="E001",
         first_name="Jane",
@@ -122,7 +136,9 @@ def test_deactivate_endpoint_already_inactive_returns_400(reference_data):
         employee=employee, effective_from="2020-01-01", effective_to="2021-01-01"
     )
 
-    response = APIClient().post(
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.post(
         f"/api/employees/{employee.id}/deactivate/",
         {"effective_date": "2021-06-01"},
         format="json",
@@ -131,7 +147,7 @@ def test_deactivate_endpoint_already_inactive_returns_400(reference_data):
     assert response.status_code == 400
 
 
-def test_reactivate_endpoint_opens_new_period(reference_data):
+def test_reactivate_endpoint_opens_new_period(reference_data, user):
     employee = Employee.objects.create(
         employee_code="E001",
         first_name="Jane",
@@ -144,7 +160,9 @@ def test_reactivate_endpoint_opens_new_period(reference_data):
         employee=employee, effective_from="2020-01-01", effective_to="2021-01-01"
     )
 
-    response = APIClient().post(
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.post(
         f"/api/employees/{employee.id}/reactivate/",
         {"effective_date": "2021-06-01"},
         format="json",
@@ -154,32 +172,40 @@ def test_reactivate_endpoint_opens_new_period(reference_data):
     assert EmploymentPeriod.objects.filter(employee=employee, effective_to=None).exists()
 
 
-def test_employee_list_filters_by_department(two_employees):
-    response = APIClient().get(f"/api/employees/?department={two_employees['a'].department_id}")
+def test_employee_list_filters_by_department(two_employees, user):
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.get(f"/api/employees/?department={two_employees['a'].department_id}")
 
     codes = [e["employee_code"] for e in response.data["results"]]
     assert codes == ["E001"]
 
 
-def test_employee_list_filters_by_role(two_employees):
-    response = APIClient().get(f"/api/employees/?role={two_employees['a'].role_id}")
+def test_employee_list_filters_by_role(two_employees, user):
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.get(f"/api/employees/?role={two_employees['a'].role_id}")
 
     codes = [e["employee_code"] for e in response.data["results"]]
     assert codes == ["E001"]
 
 
-def test_employee_list_filters_by_country(two_employees):
-    response = APIClient().get(f"/api/employees/?country={two_employees['a'].country_id}")
+def test_employee_list_filters_by_country(two_employees, user):
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.get(f"/api/employees/?country={two_employees['a'].country_id}")
 
     codes = [e["employee_code"] for e in response.data["results"]]
     assert codes == ["E001"]
 
 
-def test_employee_list_filters_by_status(two_employees):
+def test_employee_list_filters_by_status(two_employees, user):
     deactivate_employee(employee=two_employees["a"], effective_date="2020-06-01")
 
-    active = APIClient().get("/api/employees/?status=active")
-    inactive = APIClient().get("/api/employees/?status=inactive")
+    client = APIClient()
+    client.force_authenticate(user=user)
+    active = client.get("/api/employees/?status=active")
+    inactive = client.get("/api/employees/?status=inactive")
 
     active_codes = [e["employee_code"] for e in active.data["results"]]
     inactive_codes = [e["employee_code"] for e in inactive.data["results"]]
@@ -188,18 +214,22 @@ def test_employee_list_filters_by_status(two_employees):
     assert inactive_codes == ["E001"]
 
 
-def test_employee_list_search_matches_name_and_code(two_employees):
-    by_name = APIClient().get("/api/employees/?search=Alice")
-    by_code = APIClient().get("/api/employees/?search=E002")
+def test_employee_list_search_matches_name_and_code(two_employees, user):
+    client = APIClient()
+    client.force_authenticate(user=user)
+    by_name = client.get("/api/employees/?search=Alice")
+    by_code = client.get("/api/employees/?search=E002")
 
     assert [e["employee_code"] for e in by_name.data["results"]] == ["E001"]
     assert [e["employee_code"] for e in by_code.data["results"]] == ["E002"]
 
 
-def test_employee_list_includes_reference_names_and_status(two_employees):
+def test_employee_list_includes_reference_names_and_status(two_employees, user):
     deactivate_employee(employee=two_employees["a"], effective_date="2020-06-01")
 
-    response = APIClient().get("/api/employees/")
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.get("/api/employees/")
 
     by_code = {e["employee_code"]: e for e in response.data["results"]}
     assert by_code["E001"]["department_name"] == "Engineering"
@@ -209,8 +239,10 @@ def test_employee_list_includes_reference_names_and_status(two_employees):
     assert by_code["E002"]["status"] == "active"
 
 
-def test_employee_detail_includes_reference_names_and_status(two_employees):
-    response = APIClient().get(f"/api/employees/{two_employees['b'].id}/")
+def test_employee_detail_includes_reference_names_and_status(two_employees, user):
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.get(f"/api/employees/{two_employees['b'].id}/")
 
     assert response.data["department_name"] == "Sales"
     assert response.data["role_name"] == "Associate"
@@ -231,7 +263,7 @@ def test_department_list_requires_authentication():
     assert response.status_code == 403
 
 
-def test_employee_list_page_size_honoured(reference_data):
+def test_employee_list_page_size_honoured(reference_data, user):
     for i in range(30):
         Employee.objects.create(
             employee_code=f"E{i:03d}",
@@ -242,7 +274,9 @@ def test_employee_list_page_size_honoured(reference_data):
             **reference_data,
         )
 
-    response = APIClient().get("/api/employees/")
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.get("/api/employees/")
 
     assert len(response.data["results"]) == 25
     assert response.data["count"] == 30

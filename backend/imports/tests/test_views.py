@@ -38,7 +38,7 @@ def test_roster_upload_requires_authentication(reference_data, build_workbook):
     assert response.status_code == 403
 
 
-def test_roster_upload_endpoint_creates_employees(reference_data, build_workbook):
+def test_roster_upload_endpoint_creates_employees(reference_data, build_workbook, user):
     rows = [
         [
             "E001",
@@ -56,7 +56,9 @@ def test_roster_upload_endpoint_creates_employees(reference_data, build_workbook
         ],
     ]
 
-    response = APIClient().post(
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.post(
         "/api/imports/roster/",
         {"file": _upload_file(build_workbook, rows)},
         format="multipart",
@@ -67,7 +69,7 @@ def test_roster_upload_endpoint_creates_employees(reference_data, build_workbook
     assert Employee.objects.filter(employee_code="E001").exists()
 
 
-def test_roster_upload_endpoint_returns_row_errors(reference_data, build_workbook):
+def test_roster_upload_endpoint_returns_row_errors(reference_data, build_workbook, user):
     rows = [
         [
             "E001",
@@ -85,7 +87,9 @@ def test_roster_upload_endpoint_returns_row_errors(reference_data, build_workboo
         ],
     ]
 
-    response = APIClient().post(
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.post(
         "/api/imports/roster/",
         {"file": _upload_file(build_workbook, rows)},
         format="multipart",
@@ -96,7 +100,9 @@ def test_roster_upload_endpoint_returns_row_errors(reference_data, build_workboo
     assert Employee.objects.count() == 0
 
 
-def test_roster_upload_endpoint_requires_file():
-    response = APIClient().post("/api/imports/roster/", {}, format="multipart")
+def test_roster_upload_endpoint_requires_file(user):
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.post("/api/imports/roster/", {}, format="multipart")
 
     assert response.status_code == 400

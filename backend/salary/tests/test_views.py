@@ -16,10 +16,12 @@ def test_salary_change_requires_authentication(employee):
     assert response.status_code == 403
 
 
-def test_salary_change_closes_old_and_opens_new_period(employee):
+def test_salary_change_closes_old_and_opens_new_period(employee, user):
     SalaryPeriod.objects.create(employee=employee, base="50000", effective_from="2020-01-01")
 
-    response = APIClient().post(
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.post(
         f"/api/employees/{employee.id}/salary-changes/",
         {"base": "60000", "effective_from": "2021-01-01"},
         format="json",
@@ -29,10 +31,12 @@ def test_salary_change_closes_old_and_opens_new_period(employee):
     assert SalaryPeriod.objects.filter(employee=employee, effective_to=None, base="60000").exists()
 
 
-def test_salary_change_backdating_returns_400(employee):
+def test_salary_change_backdating_returns_400(employee, user):
     SalaryPeriod.objects.create(employee=employee, base="50000", effective_from="2020-06-01")
 
-    response = APIClient().post(
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.post(
         f"/api/employees/{employee.id}/salary-changes/",
         {"base": "60000", "effective_from": "2020-01-01"},
         format="json",
@@ -104,7 +108,9 @@ def test_salary_periods_returned_newest_first_with_correction_counts(employee, u
         created_by=user,
     )
 
-    response = APIClient().get(f"/api/employees/{employee.id}/salary-periods/")
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.get(f"/api/employees/{employee.id}/salary-periods/")
 
     assert response.status_code == 200
     results = response.data
@@ -127,18 +133,20 @@ def test_salary_period_corrections_endpoint_returns_log(employee, user):
         created_by=user,
     )
 
-    response = APIClient().get(
-        f"/api/employees/{employee.id}/salary-periods/{period.id}/corrections/"
-    )
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.get(f"/api/employees/{employee.id}/salary-periods/{period.id}/corrections/")
 
     assert response.status_code == 200
     assert len(response.data) == 1
     assert response.data[0]["reason"] == "Backpay"
 
 
-def test_salary_period_amounts_serialise_as_strings(employee):
+def test_salary_period_amounts_serialise_as_strings(employee, user):
     SalaryPeriod.objects.create(employee=employee, base="50000", effective_from="2020-01-01")
 
-    response = APIClient().get(f"/api/employees/{employee.id}/salary-periods/")
+    client = APIClient()
+    client.force_authenticate(user=user)
+    response = client.get(f"/api/employees/{employee.id}/salary-periods/")
 
     assert isinstance(response.data[0]["base"], str)
