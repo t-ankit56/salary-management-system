@@ -383,3 +383,48 @@ state before showing the proposed red commit message:*
 all four tests and the production build.*
 
 > yes, commit it
+
+
+## Frontend Step 4 — Employee list: static layout
+
+**Claude Code (Sonnet)**
+
+> employee list page for step 4 in design
+
+*Found `EmployeeListPage.dc.html` already in `frontend/design/`, read it, translated the
+design's "New Employee" button into a `Link` per the doc's own wording, stripped the working
+pagination state down to a static layout, verified tests and the build.*
+
+> yes commit it
+
+
+## Interlude — Frontend dev server
+
+**Claude Code (Sonnet)**
+
+> run the frontend server too so that i can see while things are build
+
+*Checked for a project-specific `run` skill (none found for this repo), fell back to the
+generic server pattern: launched `npm run dev` in the background, then `curl`-smoke-tested
+`/` and `/login` to confirm the app actually responds.*
+
+
+## Frontend Step 5 — Employee list: wire to API
+
+**Claude Code (Sonnet)**
+
+> yes. lets start step 5
+
+*Wrote `api/employees.js` and `hooks/useEmployees.js` before the test — caught the red-first
+slip on its own, wrote `EmployeeListPage.test.jsx` next anyway, hit a router-context error
+unrelated to the real assertions, wrapped the test render in `MemoryRouter`, reran and
+confirmed the real red (static stub still showing).*
+
+> yes
+
+*Implemented the wiring, which broke two already-green `App.test.jsx` tests since
+`EmployeeListPage` now fires its own mount-time fetches once authenticated. Rewrote those
+mocks to route by URL instead of call order, fixed an ambiguous `getByText('Engineering')`
+match by scoping to `getByRole('cell', ...)`, verified all 8 tests and the build.*
+
+> go ahead and commit

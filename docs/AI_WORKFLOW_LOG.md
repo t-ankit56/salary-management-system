@@ -554,13 +554,13 @@ local state, and a simulated 600ms failure response. Step 2's own text is explic
 step is layout only — "no form state beyond native inputs, no submit handler, no fetch" — so
 none of that logic could be carried over as-is.
 
-**My call:** none needed — stripping the interactive scaffolding down to plain uncontrolled
-inputs was exactly what Step 2 already specified, not a judgment call.
-
-**Accepted:** translated the design's `oklch()` styling to the closest Tailwind palette
-(slate for neutrals, blue-700 for the primary action, red for the reserved error state)
-rather than carrying inline styles or arbitrary oklch values over verbatim, to keep the page
-idiomatic Tailwind like the rest of the app will be.
+**Accepted:**
+- Stripped the interactive scaffolding down to plain uncontrolled inputs — exactly what
+  Step 2's own text specifies, not a judgment call, just a faithful reading of the doc.
+- Translated the design's `oklch()` styling to the closest Tailwind palette (slate for
+  neutrals, blue-700 for the primary action, red for the reserved error state) rather than
+  carrying inline styles or arbitrary oklch values over verbatim, to keep the page idiomatic
+  Tailwind like the rest of the app will be.
 
 **Overrode:** nothing.
 
@@ -591,3 +591,75 @@ still a faithful test of the *central* handler, which by design doesn't care whi
 triggered it.
 
 **Overrode:** nothing.
+
+
+## Frontend Step 4 — Employee list: static layout
+
+**Tool:** Claude Code (Sonnet) → `frontend/src/pages/EmployeeListPage.jsx`
+
+Same `.dc.html` translation pattern as Step 2: read the Claude Design export, stripped its
+working state (page-click handlers, per-row dynamic badge-style computation) down to a static
+layout with hardcoded rows and hardcoded filter options, per Step 4's own text.
+
+**Conflict it surfaced:** the design rendered "New Employee" as a `<button>`, but the doc's
+prose calls it a "link." Built it as a `react-router` `Link` to `/employees/new` rather than
+a plain button, following the doc's wording over the design file's markup.
+
+**Accepted:**
+- Built "New Employee" as a `Link`, not a button — a direct doc read over the design file's
+  markup, not a judgment call.
+- Kept the design's 4 sample rows rather than trimming to "a couple," since the doc's own
+  wording is approximate and the fuller set shows the badge/column layout better.
+
+**Overrode:** nothing.
+
+
+## Interlude — Frontend dev server
+
+**Tool:** Claude Code (Sonnet) → background process only, no files changed
+
+Asked to keep `npm run dev` running in the background so pages could be watched live in the
+browser as each step landed, rather than started/stopped per step.
+
+**Accepted:**
+- Used the project's `run` skill, which found no project-specific launch skill for this repo
+  and fell back to its generic "web server" pattern: background launch, then a `curl` smoke
+  check against `/` and `/login` to confirm the app actually responds rather than just that
+  the process started.
+- Left the server running for the rest of the session rather than restarting it per step —
+  Vite's dev server hot-reloads on file changes, so no restart is needed between steps.
+
+**Overrode:** nothing.
+
+
+## Frontend Step 5 — Employee list: wire to API
+
+**Tool:** Claude Code (Sonnet) → `api/employees.js`, `hooks/useEmployees.js`,
+`pages/EmployeeListPage.jsx`
+
+**Conflicts it surfaced:**
+- The static page's `Link` needs router context; the first test run failed on a router
+  context error, not the intended assertion — fixed by wrapping the test's `render()` in
+  `MemoryRouter`, then reran to confirm the *real* red (static content still showing).
+- Wiring `EmployeeListPage` to real data broke two already-green `App.test.jsx` tests: once
+  authenticated, the page now fires its own mount-time fetches (departments/roles/countries/
+  employees) that the existing fixed-position/ordered mock queue never accounted for.
+- One `EmployeeListPage.test.jsx` assertion (`getByText('Engineering')`) matched twice — the
+  table cell and the closed-but-present `<option>` in the department filter both contain the
+  literal text.
+
+**Accepted:**
+- Rewrote `App.test.jsx`'s mocks from an ordered `mockResolvedValueOnce` queue to a
+  URL-matcher function, so future pages adding their own mount-time fetches won't break
+  unrelated auth tests again the same way.
+- Scoped the ambiguous assertion to `getByRole('cell', ...)` rather than loosening it to
+  `getAllByText`, keeping the test specific to what's actually being checked (the table row).
+- Paginate by tracking `page` in local filter state and deriving total pages from `count` at
+  a fixed size of 25, never reading the response's `next`/`previous` URLs — exactly the doc's
+  stated pagination convention, applied here for the first time.
+
+**Overrode:** wrote `api/employees.js` and `hooks/useEmployees.js` before the test, breaking
+red-first discipline — the same class of slip Step 8 made on the backend. Self-caught before
+anything was committed: wrote the test next regardless, ran it against the still-static page
+to confirm a real failure, and noted the out-of-order authoring in the red commit body rather
+than pretending the order had been different.
