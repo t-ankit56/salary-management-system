@@ -334,3 +334,17 @@ followed its own red-first discipline for the fix without needing correction thi
   the deactivation side.
 
 **Overrode:** nothing.
+
+
+## Step 12 — Salary history endpoints
+
+**Tool:** Claude Code (Sonnet) → `salary/views.py`, `salary/serializers.py`
+
+Small, well-specified step — no build-guide gaps, no corrections needed.
+
+**Accepted:** money already serialized as a string without any extra work — DRF's
+`DecimalField` defaults to `COERCE_DECIMAL_TO_STRING=True`, and this project has never
+configured `REST_FRAMEWORK` settings to override it. The test for this existed to prove the
+behavior, not to drive new code.
+
+**Overrode:** nothing.

@@ -263,3 +263,12 @@ then asked whether to amend the already-committed red commit or create a new one
 > start step 11
 
 > now implement the full function and pass its tests
+
+
+## Step 12 — Salary history endpoints
+
+**Claude Code (Sonnet)**
+
+> start step 12
+
+> now implement the full endpoints and pass their tests
