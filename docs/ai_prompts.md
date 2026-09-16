@@ -428,3 +428,39 @@ mocks to route by URL instead of call order, fixed an ambiguous `getByText('Engi
 match by scoping to `getByRole('cell', ...)`, verified all 8 tests and the build.*
 
 > go ahead and commit
+
+
+## Frontend Step 6 — Employee detail: static layout
+
+**Claude Code (Sonnet)**
+
+*Session was `/clear`ed after the four `.dc.html` design files had already been read and two
+gaps against the doc identified, but before they were resolved or recorded. The recap pasted
+back in on resume cut off before showing what had actually been decided.*
+
+> you were on step 6 of the frontend_developer_doc.md this is what you did in step 6 [...]
+> Before scaffolding, I found two real gaps against the doc — same pattern as the earlier
+> "New Employee" link question, worth flagging before I write anything. [...] User answered
+> Claude's questions:
+
+*Re-read the four design files against the doc, re-derived the same two gaps (missing
+department/role/country in the detail header; missing Currency field in
+`SalaryChangeModal`), and asked for confirmation directly rather than assuming the
+unrecorded answers.*
+
+> "Add the three fields (Recommended)"; "Add a Currency field (Recommended)"
+
+*Scaffolded `EmployeeDetailPage.jsx` and the three modal components, verified the production
+build and the running dev server, and proposed the commit message.*
+
+> there was one more gap. as new employee button is the link there are other buttons on the
+> employee detail page which are supposed to be link
+
+*Checked Step 10's own test wording ("the button opens `StatusChangeModal`") and Steps 6/8/9's
+prose, which call Change Salary/Correct Salary/Deactivate-Reactivate "buttons" throughout
+since they open in-page modals; only Edit navigates to a distinct route. Reported this back
+and asked which buttons were meant instead of guessing.*
+
+> just edit, the rest stay buttons
+
+> go ahead and commit

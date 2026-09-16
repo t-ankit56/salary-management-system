@@ -663,3 +663,38 @@ red-first discipline — the same class of slip Step 8 made on the backend. Self
 anything was committed: wrote the test next regardless, ran it against the still-static page
 to confirm a real failure, and noted the out-of-order authoring in the red commit body rather
 than pretending the order had been different.
+
+
+## Frontend Step 6 — Employee detail: static layout
+
+**Tool:** Claude Code (Sonnet) → `pages/EmployeeDetailPage.jsx`,
+`components/modals/SalaryChangeModal.jsx`, `components/modals/SalaryCorrectionModal.jsx`,
+`components/modals/StatusChangeModal.jsx`
+
+**Conflict it surfaced:** the session was `/clear`ed mid-step, after the four `.dc.html`
+design files had already been read and two gaps against the doc identified but before their
+resolution was recorded anywhere. The pasted recap on resume cut off before showing what had
+actually been decided, so rather than guess or fabricate the prior answers, both gaps were
+re-derived from scratch by rereading the design files against the doc text and confirmed
+fresh with the user.
+
+**My call:**
+- `EmployeeDetailPage.dc.html`'s header shows only name, code, and status badge; the doc's
+  own Step 6 text also calls for department/role/country. Confirmed: add the three fields,
+  following the doc's prose over the design markup — same precedent as Step 4's "New
+  Employee" link/button call.
+- `SalaryChangeModal.dc.html` has no Currency field, but Step 8's real API payload
+  (`recordSalaryChange`) requires `currency` in the body. Confirmed: add a Currency field now
+  during static scaffolding rather than deferring it to Step 8.
+- Flagged a third gap after the page was scaffolded: whether other action buttons should also
+  be `Link`s, same pattern as "New Employee." Checked Step 10's own test wording ("the button
+  opens `StatusChangeModal`") and Steps 6/8/9's prose, which call Change Salary/Correct
+  Salary/Deactivate-Reactivate "buttons" throughout since they open in-page modals rather than
+  navigate — only Edit changes the URL (`/employees/:id/edit`). Confirmed: Edit only; the rest
+  stay buttons, matching what was already scaffolded.
+
+**Accepted:** reasoning that Edit is the only one of the four action buttons that navigates to
+a distinct route, and should be a `Link` rather than a `button`, was established independently
+from the doc's routing list before being asked — confirmed without change once raised.
+
+**Overrode:** nothing.
