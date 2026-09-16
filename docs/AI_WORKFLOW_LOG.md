@@ -301,3 +301,21 @@ fix.
   string rather than a `date`.
 
 **Overrode:** nothing.
+
+
+## Step 10 — Corrections
+
+**Tool:** Claude Code (Sonnet) → `salary/models.py`, `salary/services.py`, `salary/views.py`
+
+**My call:**
+- Add `created_by` to `SalaryCorrection` — an audit log without attribution isn't much of
+  an audit log. Not in the build guide's model definition; added mid-cycle, before any
+  green implementation existed.
+- Amend the red commit with that addition rather than create a separate one for it, since
+  nothing had been built on top of it yet.
+
+**Accepted:** flagged the third instance of the same class of gap (a documented endpoint
+never wired to its service in any step) on its own, checked the remaining steps itself, and
+followed its own red-first discipline for the fix without needing correction this time.
+
+**Overrode:** nothing.

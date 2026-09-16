@@ -236,3 +236,21 @@ roster upload and Step 17's seed command, both specified to open both periods on
 before reporting it:*
 
 > yes, wire the view now
+
+
+## Step 10 — Corrections
+
+**Claude Code (Sonnet)**
+
+> start step 10
+
+*Interrupted mid-model-writing:*
+
+> add a created_by in this model
+
+*Updated the tests and stub to include `created_by`, confirmed the red state still held,
+then asked whether to amend the already-committed red commit or create a new one:*
+
+> amend it
+
+> now implement the full function and pass its tests
