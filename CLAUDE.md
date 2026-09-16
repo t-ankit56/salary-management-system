@@ -58,6 +58,10 @@ failing test, then the implementation. Conventional Commit prefixes:
 | `docs:` | Documentation only, including the AI workflow log and prompt log |
 | `chore:` | Setup, config, non-feature work |
 
+Every commit message has a body, not just the Conventional Commit subject line: a sentence
+or two describing what the change does. A one-line `type: subject` with nothing beneath it
+is not enough.
+
 ## Out of bounds
 
 - Do not add dependencies without asking.
