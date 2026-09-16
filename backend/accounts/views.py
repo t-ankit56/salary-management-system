@@ -1,5 +1,6 @@
 from django.contrib.auth import login
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -16,3 +17,10 @@ class LoginView(APIView):
 
         login(request, user)
         return Response({"email": user.email})
+
+
+class MeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({"email": request.user.email})
