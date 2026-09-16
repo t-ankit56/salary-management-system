@@ -11,6 +11,18 @@ function jsonResponse(status, body) {
   }
 }
 
+function mockFetch(overrides) {
+  return vi.fn((url) => {
+    for (const [matcher, response] of overrides) {
+      if (url.includes(matcher)) return Promise.resolve(response)
+    }
+    if (url.includes('/api/employees/')) {
+      return Promise.resolve(jsonResponse(200, { count: 0, next: null, previous: null, results: [] }))
+    }
+    return Promise.resolve(jsonResponse(200, []))
+  })
+}
+
 function renderApp() {
   return render(
     <MemoryRouter>
@@ -24,10 +36,10 @@ beforeEach(() => {
 })
 
 it('submits credentials and shows the authenticated app on success', async () => {
-  global.fetch = vi
-    .fn()
-    .mockResolvedValueOnce(jsonResponse(403, { detail: 'Authentication credentials were not provided.' }))
-    .mockResolvedValueOnce(jsonResponse(200, { email: 'hr@acme.com' }))
+  global.fetch = mockFetch([
+    ['/api/auth/me/', jsonResponse(403, { detail: 'Authentication credentials were not provided.' })],
+    ['/api/auth/login/', jsonResponse(200, { email: 'hr@acme.com' })],
+  ])
 
   renderApp()
 
@@ -45,10 +57,10 @@ it('submits credentials and shows the authenticated app on success', async () =>
 })
 
 it('shows an error on a 401 response and does not navigate anywhere', async () => {
-  global.fetch = vi
-    .fn()
-    .mockResolvedValueOnce(jsonResponse(403, { detail: 'Authentication credentials were not provided.' }))
-    .mockResolvedValueOnce(jsonResponse(401))
+  global.fetch = mockFetch([
+    ['/api/auth/me/', jsonResponse(403, { detail: 'Authentication credentials were not provided.' })],
+    ['/api/auth/login/', jsonResponse(401)],
+  ])
 
   renderApp()
 
@@ -63,10 +75,10 @@ it('shows an error on a 401 response and does not navigate anywhere', async () =
 })
 
 it('dispatches the unauthorized event and renders LoginPage on a 403 from any fetch call', async () => {
-  global.fetch = vi
-    .fn()
-    .mockResolvedValueOnce(jsonResponse(200, { email: 'hr@acme.com' }))
-    .mockResolvedValueOnce(jsonResponse(403, { detail: 'Authentication credentials were not provided.' }))
+  global.fetch = mockFetch([
+    ['/api/employees/999/', jsonResponse(403, { detail: 'Authentication credentials were not provided.' })],
+    ['/api/auth/me/', jsonResponse(200, { email: 'hr@acme.com' })],
+  ])
 
   renderApp()
 
@@ -78,9 +90,9 @@ it('dispatches the unauthorized event and renders LoginPage on a 403 from any fe
 })
 
 it('does not show an error banner when the mount-time session check returns 403', async () => {
-  global.fetch = vi
-    .fn()
-    .mockResolvedValueOnce(jsonResponse(403, { detail: 'Authentication credentials were not provided.' }))
+  global.fetch = mockFetch([
+    ['/api/auth/me/', jsonResponse(403, { detail: 'Authentication credentials were not provided.' })],
+  ])
 
   renderApp()
 

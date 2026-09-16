@@ -1,39 +1,7 @@
 import { Link } from 'react-router-dom'
+import { useEmployees } from '../hooks/useEmployees'
 
-const EMPLOYEES = [
-  {
-    code: 'EMP-1001',
-    name: 'Sarah Chen',
-    department: 'Engineering',
-    role: 'Senior Engineer',
-    country: 'United States',
-    status: 'active',
-  },
-  {
-    code: 'EMP-1002',
-    name: 'James Okafor',
-    department: 'Sales',
-    role: 'Account Executive',
-    country: 'United Kingdom',
-    status: 'active',
-  },
-  {
-    code: 'EMP-1003',
-    name: 'Priya Nair',
-    department: 'Finance',
-    role: 'Financial Analyst',
-    country: 'India',
-    status: 'inactive',
-  },
-  {
-    code: 'EMP-1004',
-    name: 'Diego Martins',
-    department: 'Engineering',
-    role: 'Engineering Manager',
-    country: 'Brazil',
-    status: 'active',
-  },
-]
+const PAGE_SIZE = 25
 
 const selectClass =
   'px-2.5 py-[9px] text-sm border border-slate-300 rounded-md text-slate-600 bg-white'
@@ -58,6 +26,14 @@ function StatusBadge({ status }) {
 }
 
 function EmployeeListPage() {
+  const { employees, count, departments, roles, countries, filters, setFilter, setPage } =
+    useEmployees()
+
+  const totalPages = Math.max(1, Math.ceil(count / PAGE_SIZE))
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1)
+  const rangeStart = count === 0 ? 0 : (filters.page - 1) * PAGE_SIZE + 1
+  const rangeEnd = Math.min(filters.page * PAGE_SIZE, count)
+
   return (
     <div className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-[1240px] mx-auto">
@@ -75,35 +51,58 @@ function EmployeeListPage() {
           <input
             type="text"
             placeholder="Search by name or employee code"
+            value={filters.search}
+            onChange={(e) => setFilter('search', e.target.value)}
             className="flex-1 min-w-[220px] px-3 py-[9px] text-sm border border-slate-300 rounded-md text-slate-800"
           />
-          <select className={selectClass}>
-            <option>All Departments</option>
-            <option>Engineering</option>
-            <option>Sales</option>
-            <option>Finance</option>
-            <option>HR</option>
-            <option>Operations</option>
+          <select
+            aria-label="Department"
+            value={filters.department}
+            onChange={(e) => setFilter('department', e.target.value)}
+            className={selectClass}
+          >
+            <option value="">All Departments</option>
+            {departments.map((department) => (
+              <option key={department.id} value={department.id}>
+                {department.name}
+              </option>
+            ))}
           </select>
-          <select className={selectClass}>
-            <option>All Roles</option>
-            <option>Manager</option>
-            <option>Engineer</option>
-            <option>Analyst</option>
-            <option>Executive</option>
-            <option>Specialist</option>
+          <select
+            aria-label="Role"
+            value={filters.role}
+            onChange={(e) => setFilter('role', e.target.value)}
+            className={selectClass}
+          >
+            <option value="">All Roles</option>
+            {roles.map((role) => (
+              <option key={role.id} value={role.id}>
+                {role.name}
+              </option>
+            ))}
           </select>
-          <select className={selectClass}>
-            <option>All Countries</option>
-            <option>United States</option>
-            <option>United Kingdom</option>
-            <option>India</option>
-            <option>Brazil</option>
+          <select
+            aria-label="Country"
+            value={filters.country}
+            onChange={(e) => setFilter('country', e.target.value)}
+            className={selectClass}
+          >
+            <option value="">All Countries</option>
+            {countries.map((country) => (
+              <option key={country.id} value={country.id}>
+                {country.name}
+              </option>
+            ))}
           </select>
-          <select className={selectClass}>
-            <option>All Statuses</option>
-            <option>Active</option>
-            <option>Inactive</option>
+          <select
+            aria-label="Status"
+            value={filters.status}
+            onChange={(e) => setFilter('status', e.target.value)}
+            className={selectClass}
+          >
+            <option value="">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
           </select>
         </div>
 
@@ -132,13 +131,15 @@ function EmployeeListPage() {
               </tr>
             </thead>
             <tbody>
-              {EMPLOYEES.map((employee) => (
-                <tr key={employee.code} className="border-b border-slate-100">
-                  <td className="px-4 py-[13px] text-slate-600 font-mono">{employee.code}</td>
-                  <td className="px-4 py-[13px] text-slate-800 font-semibold">{employee.name}</td>
-                  <td className="px-4 py-[13px] text-slate-600">{employee.department}</td>
-                  <td className="px-4 py-[13px] text-slate-600">{employee.role}</td>
-                  <td className="px-4 py-[13px] text-slate-600">{employee.country}</td>
+              {employees.map((employee) => (
+                <tr key={employee.id} className="border-b border-slate-100">
+                  <td className="px-4 py-[13px] text-slate-600 font-mono">{employee.employee_code}</td>
+                  <td className="px-4 py-[13px] text-slate-800 font-semibold">
+                    {employee.first_name} {employee.last_name}
+                  </td>
+                  <td className="px-4 py-[13px] text-slate-600">{employee.department_name}</td>
+                  <td className="px-4 py-[13px] text-slate-600">{employee.role_name}</td>
+                  <td className="px-4 py-[13px] text-slate-600">{employee.country_name}</td>
                   <td className="px-4 py-[13px]">
                     <StatusBadge status={employee.status} />
                   </td>
@@ -149,21 +150,32 @@ function EmployeeListPage() {
         </div>
 
         <div className="flex items-center justify-between mt-4">
-          <span className="text-[13px] text-slate-500">Showing 1–4 of 94 employees</span>
+          <span className="text-[13px] text-slate-500">
+            Showing {rangeStart}–{rangeEnd} of {count} employees
+          </span>
           <div className="flex gap-1.5 items-center">
-            <button type="button" className={pageButtonClass}>
+            <button
+              type="button"
+              onClick={() => setPage(Math.max(1, filters.page - 1))}
+              className={pageButtonClass}
+            >
               Prev
             </button>
-            <button type="button" className={activePageButtonClass}>
-              1
-            </button>
-            <button type="button" className={pageButtonClass}>
-              2
-            </button>
-            <button type="button" className={pageButtonClass}>
-              3
-            </button>
-            <button type="button" className={pageButtonClass}>
+            {pageNumbers.map((page) => (
+              <button
+                key={page}
+                type="button"
+                onClick={() => setPage(page)}
+                className={page === filters.page ? activePageButtonClass : pageButtonClass}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setPage(Math.min(totalPages, filters.page + 1))}
+              className={pageButtonClass}
+            >
               Next
             </button>
           </div>

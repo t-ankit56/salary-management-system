@@ -95,10 +95,10 @@ it('renders department_name/role_name/country_name/status from the response, not
   renderPage()
 
   await waitFor(() => expect(screen.getByText('Jane Doe')).toBeInTheDocument())
-  expect(screen.getByText('Engineering')).toBeInTheDocument()
-  expect(screen.getByText('Manager')).toBeInTheDocument()
-  expect(screen.getByText('India')).toBeInTheDocument()
-  expect(screen.getByText('Active')).toBeInTheDocument()
+  expect(screen.getByRole('cell', { name: 'Engineering' })).toBeInTheDocument()
+  expect(screen.getByRole('cell', { name: 'Manager' })).toBeInTheDocument()
+  expect(screen.getByRole('cell', { name: 'India' })).toBeInTheDocument()
+  expect(screen.getByRole('cell', { name: 'Active' })).toBeInTheDocument()
 })
 
 it('changing page re-requests with the page param and does not follow the next URL from the response', async () => {
