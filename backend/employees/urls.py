@@ -5,8 +5,10 @@ from employees.views import (
     CountryListView,
     DepartmentDetailView,
     DepartmentListCreateView,
+    EmployeeDeactivateView,
     EmployeeDetailView,
     EmployeeListCreateView,
+    EmployeeReactivateView,
     RoleDetailView,
     RoleListCreateView,
 )
@@ -20,4 +22,14 @@ urlpatterns = [
     path("countries/<int:pk>/", CountryDetailView.as_view(), name="country-detail"),
     path("employees/", EmployeeListCreateView.as_view(), name="employee-list"),
     path("employees/<int:pk>/", EmployeeDetailView.as_view(), name="employee-detail"),
+    path(
+        "employees/<int:employee_id>/deactivate/",
+        EmployeeDeactivateView.as_view(),
+        name="employee-deactivate",
+    ),
+    path(
+        "employees/<int:employee_id>/reactivate/",
+        EmployeeReactivateView.as_view(),
+        name="employee-reactivate",
+    ),
 ]

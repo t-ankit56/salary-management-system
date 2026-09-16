@@ -56,3 +56,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return create_employee(**validated_data)
+
+
+class StatusChangeSerializer(serializers.Serializer):
+    effective_date = serializers.DateField()
