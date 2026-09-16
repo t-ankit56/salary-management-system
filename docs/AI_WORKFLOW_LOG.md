@@ -505,3 +505,36 @@ with a real example response and both 400 shapes for every endpoint the frontend
   widens scale (`50000.000000000000`) in a way a `DecimalField` would normally hide.
 
 **Overrode:** nothing.
+
+
+# Frontend
+
+## Frontend Step 1 — Project skeleton
+
+**Tool:** Claude Code (Sonnet) → `frontend/`
+
+Before scaffolding, asked for the list of pages/modals `frontend_developer_doc.md` calls for
+Claude Design to build, then for a ready-to-paste design prompt per page/modal — both done
+by reading the doc alone, no code written yet.
+
+**Conflicts it surfaced, all real drift between the doc and what actually installs today:**
+- `create-vite`'s current React template pulls in `oxlint` and `@types/react`/
+  `@types/react-dom`, none of which are in the doc's Step 1 dependency list.
+- `npm install tailwindcss` installs v4 by default, which is CSS-first (`@import
+  "tailwindcss"` + `@tailwindcss/vite`, content auto-detected) — no `tailwind.config.js`,
+  contradicting the doc's explicit `tailwind.config.js` plus content-glob layout entry.
+- The same scaffold installs React 19, while the Stack line said "React 18."
+- `vitest run` exits 1 on zero test files by default, contradicting the doc's own "Done"
+  criterion that `npm run test` runs zero tests *successfully*.
+
+**My calls:**
+- Strip `oxlint` and the `@types` packages rather than keep them — match the doc's dependency
+  list exactly rather than accept the scaffold's defaults.
+- Keep Tailwind v4 and React 19, both already installed with no conflict against anything
+  else in the doc, and update `frontend_developer_doc.md`'s Stack/Layout sections to match,
+  rather than downgrading to match the doc as originally written.
+
+**Accepted:** added `passWithNoTests: true` to the Vitest config so the doc's zero-tests
+"Done" criterion is literally true (exit code 0), not just true in spirit.
+
+**Overrode:** nothing.

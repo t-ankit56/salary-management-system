@@ -304,3 +304,40 @@ helper used for the four new reports, for consistency:*
 > yes, refactor them now and commit as refactor
 
 > sure build the endpoint now
+
+
+# Frontend
+
+## Frontend Step 1 — Project skeleton
+
+**Claude Code (Sonnet)**
+
+> give me a list of four pages and modals that needs to be created by claude design as
+> mentioned in frontend_developer_docs.md in docs
+
+*Found the doc actually specifies five pages plus three modals, not four; listed them from
+the doc's "Built in Claude Design" steps.*
+
+> I want propmpts for these pages and modals which I can give to claude design
+
+*Wrote one paste-ready prompt per page/modal, scoped to static layout only (no
+behaviour/fetching), matching the doc's field lists.*
+
+> ok I have the pages ready. lets start with step 1. whenever you need a page ask me. follow
+> the guide and if you find any issues tell me
+
+*Scaffolded Vite + React, found `create-vite`'s default template pulls in `oxlint` and
+`@types/react`/`@types/react-dom` not in the doc's dependency list, and asked:*
+
+> Strip them out
+
+*Found `npm install tailwindcss` installs v4 (CSS-first, no `tailwind.config.js`) against the
+doc's v3-style `tailwind.config.js` + content-glob layout entry, and asked:*
+
+> use tailwind v4 update the doc for same and commit it
+
+*Found the scaffold installs React 19 against the doc's "React 18" Stack line, and asked:*
+
+> Keep React 19, update doc
+
+> go ahead and commit
