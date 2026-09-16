@@ -196,6 +196,28 @@ def test_employee_list_search_matches_name_and_code(two_employees):
     assert [e["employee_code"] for e in by_code.data["results"]] == ["E002"]
 
 
+def test_employee_list_includes_reference_names_and_status(two_employees):
+    deactivate_employee(employee=two_employees["a"], effective_date="2020-06-01")
+
+    response = APIClient().get("/api/employees/")
+
+    by_code = {e["employee_code"]: e for e in response.data["results"]}
+    assert by_code["E001"]["department_name"] == "Engineering"
+    assert by_code["E001"]["role_name"] == "Manager"
+    assert by_code["E001"]["country_name"] == "India"
+    assert by_code["E001"]["status"] == "inactive"
+    assert by_code["E002"]["status"] == "active"
+
+
+def test_employee_detail_includes_reference_names_and_status(two_employees):
+    response = APIClient().get(f"/api/employees/{two_employees['b'].id}/")
+
+    assert response.data["department_name"] == "Sales"
+    assert response.data["role_name"] == "Associate"
+    assert response.data["country_name"] == "USA"
+    assert response.data["status"] == "active"
+
+
 def test_employee_list_page_size_honoured(reference_data):
     for i in range(30):
         Employee.objects.create(
