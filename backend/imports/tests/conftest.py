@@ -3,6 +3,7 @@ from io import BytesIO
 import openpyxl
 import pytest
 
+from accounts.models import User
 from employees.models import Country, Department, Role
 
 HEADER = [
@@ -19,6 +20,11 @@ HEADER = [
     "yearly_bonus",
     "salary_effective_from",
 ]
+
+
+@pytest.fixture
+def user(db):
+    return User.objects.create_user(email="hr@example.com", password="s3cret-pass")
 
 
 @pytest.fixture

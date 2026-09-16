@@ -1,8 +1,16 @@
 from decimal import Decimal
 
+import pytest
 from rest_framework.test import APIClient
 
 from employees.services import create_employee
+
+
+@pytest.mark.django_db
+def test_report_endpoint_requires_authentication():
+    response = APIClient().get("/api/reports/total_payroll_cost/")
+
+    assert response.status_code == 403
 
 
 def test_report_endpoint_returns_total_payroll_cost(reference_data):

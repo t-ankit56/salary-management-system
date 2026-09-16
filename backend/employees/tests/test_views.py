@@ -218,6 +218,19 @@ def test_employee_detail_includes_reference_names_and_status(two_employees):
     assert response.data["status"] == "active"
 
 
+def test_employee_list_requires_authentication(reference_data):
+    response = APIClient().get("/api/employees/")
+
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_department_list_requires_authentication():
+    response = APIClient().get("/api/departments/")
+
+    assert response.status_code == 403
+
+
 def test_employee_list_page_size_honoured(reference_data):
     for i in range(30):
         Employee.objects.create(

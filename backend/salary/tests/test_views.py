@@ -4,6 +4,18 @@ from salary.models import SalaryPeriod
 from salary.services import correct_salary_period
 
 
+def test_salary_change_requires_authentication(employee):
+    SalaryPeriod.objects.create(employee=employee, base="50000", effective_from="2020-01-01")
+
+    response = APIClient().post(
+        f"/api/employees/{employee.id}/salary-changes/",
+        {"base": "60000", "effective_from": "2021-01-01"},
+        format="json",
+    )
+
+    assert response.status_code == 403
+
+
 def test_salary_change_closes_old_and_opens_new_period(employee):
     SalaryPeriod.objects.create(employee=employee, base="50000", effective_from="2020-01-01")
 

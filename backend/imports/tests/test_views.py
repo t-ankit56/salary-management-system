@@ -11,6 +11,33 @@ def _upload_file(build_workbook, rows):
     return SimpleUploadedFile("roster.xlsx", buffer.read(), content_type=CONTENT_TYPE)
 
 
+def test_roster_upload_requires_authentication(reference_data, build_workbook):
+    rows = [
+        [
+            "E001",
+            "Jane",
+            "Doe",
+            "jane@example.com",
+            "Engineering",
+            "India",
+            "Manager",
+            "2020-01-01",
+            50000,
+            0,
+            0,
+            "2020-01-01",
+        ],
+    ]
+
+    response = APIClient().post(
+        "/api/imports/roster/",
+        {"file": _upload_file(build_workbook, rows)},
+        format="multipart",
+    )
+
+    assert response.status_code == 403
+
+
 def test_roster_upload_endpoint_creates_employees(reference_data, build_workbook):
     rows = [
         [
