@@ -155,3 +155,24 @@ Django/DRF codebase. Ignored RUF012 project-wide instead of annotating every occ
 Two process rules added along the way, now in root `CLAUDE.md`: every commit needs a body,
 not just a subject line; and the assistant shows the proposed commit message up front rather
 than waiting to be asked.
+
+
+## Step 4 — Reference data
+
+**Tool:** Claude Code (Sonnet) → `employees/` (models, serializers, views, urls)
+
+Another build-guide gap, smaller than Steps 1–2: `Country` isn't listed anywhere in the
+Layout section's app breakdown, unlike `Department`/`Role` which are explicitly placed under
+`employees/`. It flagged this and asked before writing anything.
+
+**My call:**
+- `Country` lives in `employees/` too — the same app as `Department`/`Role`, and where
+  `Employee`'s FK to it lands in Step 5 anyway.
+- Split the step in two: models and their tests first, endpoints afterwards, continuing the
+  one-piece-at-a-time rhythm from Step 3.
+
+**Accepted:** no migration needed for any of the three models — none has a cross-app
+dependency, so `syncdb` builds their tables cleanly for the test database without one, unlike
+`accounts` in Step 2.
+
+**Overrode:** nothing.
