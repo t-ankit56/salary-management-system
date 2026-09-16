@@ -348,3 +348,20 @@ configured `REST_FRAMEWORK` settings to override it. The test for this existed t
 behavior, not to drive new code.
 
 **Overrode:** nothing.
+
+
+## Step 13 — Employee list
+
+**Tool:** Claude Code (Sonnet) → `employees/views.py`, `employees/filters.py`
+
+Small, well-specified step — no build-guide gaps, no corrections needed.
+
+**Accepted:**
+- Scoped pagination, filtering and search to `EmployeeListCreateView` only, not globally —
+  Department/Role/Country lists still return bare arrays, and a global default would have
+  broken their existing tests.
+- Caught and fixed `UnorderedObjectListWarning` on its own: the paginated queryset had no
+  explicit ordering, which Postgres doesn't guarantee is stable across pages. Added
+  `.order_by("employee_code")`.
+
+**Overrode:** nothing.

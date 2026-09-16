@@ -272,3 +272,12 @@ then asked whether to amend the already-committed red commit or create a new one
 > start step 12
 
 > now implement the full endpoints and pass their tests
+
+
+## Step 13 — Employee list
+
+**Claude Code (Sonnet)**
+
+> start step 13
+
+> now implement the full endpoints and pass their tests
