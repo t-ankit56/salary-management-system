@@ -1,7 +1,12 @@
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateAPIView
 
-from employees.models import Country, Department, Role
-from employees.serializers import CountrySerializer, DepartmentSerializer, RoleSerializer
+from employees.models import Country, Department, Employee, Role
+from employees.serializers import (
+    CountrySerializer,
+    DepartmentSerializer,
+    EmployeeSerializer,
+    RoleSerializer,
+)
 
 
 class DepartmentListCreateView(ListCreateAPIView):
@@ -32,3 +37,8 @@ class CountryListView(ListAPIView):
 class CountryDetailView(RetrieveUpdateAPIView):
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
+
+
+class EmployeeListCreateView(ListCreateAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
