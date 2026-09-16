@@ -456,3 +456,52 @@ rule here, since that rule is about the API layer, not a dev-only reset tool.
 **Overrode:** nothing.
 
 **Overrode:** nothing.
+
+
+## Frontend design — API gaps found while documenting
+
+**Tool:** Claude Code (Sonnet) → `docs/frontend_developer_doc.md`, plus `employees/serializers.py`,
+`config/settings.py`, `accounts/views.py`, `reporting/views.py`
+
+Asked for a frontend build guide in the same ordered-steps format as the backend one,
+reading the actual serializers and views for response shapes rather than inferring them,
+with a real example response and both 400 shapes for every endpoint the frontend calls.
+
+**Conflicts it surfaced, all real gaps against what the four pages need:**
+- `EmployeeSerializer` returned bare department/role/country foreign-key ids and no status
+  field at all — the employee list and detail pages need names and an active/inactive
+  badge, and nothing in the API exposed either. Flagged before writing a line of the doc.
+- No `REST_FRAMEWORK` default permission was ever set — only `/me/` and salary-corrections
+  actually enforced `IsAuthenticated`; every other endpoint, including employee and salary
+  writes, was `AllowAny` by omission, despite `requirements.md` scoping this to a single
+  authenticated user.
+- While capturing real examples against the running API instead of reading the serializer
+  and guessing, it caught a third on its own: report endpoints return `Response(result)` on
+  a plain dict, which skips `DecimalField`'s string coercion, so DRF's encoder silently
+  falls back to `float(obj)` for any `Decimal` — the one place in the whole API where money
+  crossed the wire as a JS float instead of a string.
+
+**My calls:**
+- All three: fix the backend now rather than just document the gap, test-first, one change
+  at a time, each committed as its own red/green pair.
+- The auth and report-money fixes are `fix:` commits, not `feat:` — both close a gap against
+  behaviour the project already committed to (single authenticated user; money never a
+  float), not new functionality.
+- Resolved a contradiction in my own brief before it wrote anything: I'd asked both for the
+  doc to interleave each page's static layout with its integration ("don't group all the
+  static pages together") and for it to have two literal phases (all statics, then all
+  integration). Picked interleaved steps, with "phase" as an explanatory note rather than a
+  document section.
+
+**Accepted:**
+- Verified assumptions against the live dev containers rather than the code alone — logged
+  in with a throwaway user, hit every endpoint with curl, and used the actual captured JSON
+  (including exact DRF validation wording, e.g. "employee with this employee code already
+  exists.") as the doc's examples, cleaning up the throwaway data afterward.
+- Fixing the global-auth gap meant updating every existing test that called the API
+  unauthenticated (35 call sites across 5 apps) to authenticate first, rather than weakening
+  the new behaviour to keep them passing.
+- Quantizing report averages to 2 decimal places before stringifying, since Postgres `AVG`
+  widens scale (`50000.000000000000`) in a way a `DecimalField` would normally hide.
+
+**Overrode:** nothing.
