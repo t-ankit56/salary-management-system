@@ -64,3 +64,44 @@ It stopped and flagged that 3 out of 4 tests cannot run without creating migrati
 > Yes, run makemigrations accounts and then show me that all 4 test are failing for the right reasons 
 
 > now implement the manager to make them pass
+
+
+
+## Step 3 — Session authentication endpoints
+
+**Claude Code (Sonnet)**
+
+> now let's start with step 3 now
+
+Wrote the failing tests for login, me and logout, ran them to confirm all five 404 (no
+routes registered yet), committed red.
+
+> now implement the login view first and pass its test
+
+> now implement the me view and pass its test
+
+*Interrupted mid-`me`-view work, since login had passed but not yet been committed:*
+
+> befor implementing me view commit the login view as green
+
+While implementing `me`, it reused the `ClassVar` annotation from Step 2 to silence ruff on
+DRF's `permission_classes`, without checking whether it still fit:
+
+> why are you using ClassVar
+
+> yes, ignore RUF012 in pyproject.toml
+
+*Asked to commit, then to split the two concerns:*
+
+> split the ruff config change in its chore
+
+> now implement the logout view and pass its test
+
+*New standing rule, stated once here and formalised into `CLAUDE.md` afterwards:*
+
+> when you are ready for commit show the commit message and description
+
+> now implement the CORS config
+
+> write a rule in claude.md that whenever you are ready for commit show the commit message
+> and description automatically
