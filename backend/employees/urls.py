@@ -5,6 +5,7 @@ from employees.views import (
     CountryListView,
     DepartmentDetailView,
     DepartmentListCreateView,
+    EmployeeDetailView,
     EmployeeListCreateView,
     RoleDetailView,
     RoleListCreateView,
@@ -18,4 +19,5 @@ urlpatterns = [
     path("countries/", CountryListView.as_view(), name="country-list"),
     path("countries/<int:pk>/", CountryDetailView.as_view(), name="country-detail"),
     path("employees/", EmployeeListCreateView.as_view(), name="employee-list"),
+    path("employees/<int:pk>/", EmployeeDetailView.as_view(), name="employee-detail"),
 ]

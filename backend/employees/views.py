@@ -42,3 +42,8 @@ class CountryDetailView(RetrieveUpdateAPIView):
 class EmployeeListCreateView(ListCreateAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
+
+
+class EmployeeDetailView(RetrieveUpdateAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
