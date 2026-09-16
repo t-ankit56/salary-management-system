@@ -17,17 +17,21 @@ endpoint requires a session and the central 403 handler is wired as part of it.
 
 ## Stack
 
-React 18 · Vite · plain JavaScript (no TypeScript) · Tailwind CSS · fetch (no HTTP library) ·
-Vitest · React Testing Library
+React 19 · Vite · plain JavaScript (no TypeScript) · Tailwind CSS v4 (CSS-first config, no
+`tailwind.config.js`) · fetch (no HTTP library) · Vitest · React Testing Library
 
 Exact patch versions aren't pinned here the way the backend's are — nothing is installed
 yet. Pin via `package-lock.json` on first `npm install` and treat that lockfile as the
 source of truth from then on.
 
 ```
-package.json        vite, react, react-dom, react-router-dom, tailwindcss
+package.json        vite, react, react-dom, react-router-dom, tailwindcss, @tailwindcss/vite
                      vitest, @testing-library/react, @testing-library/jest-dom, jsdom (dev)
 ```
+
+Tailwind is configured via `@import "tailwindcss";` in `src/index.css` plus the
+`@tailwindcss/vite` plugin in `vite.config.js` — v4's content scanning is automatic, so there
+is no `tailwind.config.js` and no explicit content glob to maintain.
 
 ## Layout
 
@@ -60,7 +64,6 @@ frontend/
     main.jsx
   index.html
   vite.config.js
-  tailwind.config.js
 ```
 
 Each hook owns its own fetch calls and error state; pages read from hooks and render.
@@ -148,8 +151,9 @@ anything that assumes CORS exists in production.
 
 Scaffolding only.
 
-**Vite + React**, plain JavaScript template. **Tailwind CSS** configured against
-`src/**/*.{js,jsx}`. **react-router-dom** for the routes (`/login`, `/employees`,
+**Vite + React**, plain JavaScript template. **Tailwind CSS v4** via `@tailwindcss/vite` and
+`@import "tailwindcss";` in `src/index.css` (content scanning is automatic in v4, no
+`tailwind.config.js`). **react-router-dom** for the routes (`/login`, `/employees`,
 `/employees/:id`, `/employees/new`, `/employees/:id/edit`, `/reports`) plus a redirect from
 `/` to `/employees`.
 
