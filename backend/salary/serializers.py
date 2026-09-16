@@ -26,6 +26,23 @@ class SalaryPeriodSerializer(serializers.ModelSerializer):
         ]
 
 
+class SalaryPeriodHistorySerializer(serializers.ModelSerializer):
+    correction_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = SalaryPeriod
+        fields = [
+            "id",
+            "base",
+            "allowance",
+            "yearly_bonus",
+            "currency",
+            "effective_from",
+            "effective_to",
+            "correction_count",
+        ]
+
+
 class SalaryCorrectionInputSerializer(serializers.Serializer):
     salary_period = serializers.PrimaryKeyRelatedField(queryset=SalaryPeriod.objects.all())
     base = serializers.DecimalField(max_digits=12, decimal_places=2)
