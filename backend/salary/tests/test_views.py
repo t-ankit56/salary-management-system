@@ -26,3 +26,50 @@ def test_salary_change_backdating_returns_400(employee):
     )
 
     assert response.status_code == 400
+
+
+def test_salary_correction_updates_amounts_and_logs(employee, user):
+    period = SalaryPeriod.objects.create(
+        employee=employee, base="50000", effective_from="2020-01-01"
+    )
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.post(
+        f"/api/employees/{employee.id}/salary-corrections/",
+        {
+            "salary_period": period.id,
+            "base": "55000",
+            "allowance": "0",
+            "yearly_bonus": "0",
+            "reason": "Backpay adjustment",
+        },
+        format="json",
+    )
+
+    assert response.status_code == 201
+    period.refresh_from_db()
+    assert period.base == 55000
+    assert period.corrections.filter(reason="Backpay adjustment", created_by=user).exists()
+
+
+def test_salary_correction_missing_reason_returns_400(employee, user):
+    period = SalaryPeriod.objects.create(
+        employee=employee, base="50000", effective_from="2020-01-01"
+    )
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.post(
+        f"/api/employees/{employee.id}/salary-corrections/",
+        {
+            "salary_period": period.id,
+            "base": "55000",
+            "allowance": "0",
+            "yearly_bonus": "0",
+            "reason": "",
+        },
+        format="json",
+    )
+
+    assert response.status_code == 400
