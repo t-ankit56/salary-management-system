@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from employees.models import Country, Department, Employee, Role
+from employees.models import Country, Department, Employee, EmploymentPeriod, Role
 
 
 @admin.register(Department)
@@ -30,3 +30,9 @@ class EmployeeAdmin(admin.ModelAdmin):
         "country",
     ]
     search_fields = ["employee_code", "first_name", "last_name", "email"]
+
+
+@admin.register(EmploymentPeriod)
+class EmploymentPeriodAdmin(admin.ModelAdmin):
+    list_display = ["employee", "effective_from", "effective_to"]
+    list_filter = ["effective_to"]
