@@ -538,3 +538,56 @@ by reading the doc alone, no code written yet.
 "Done" criterion is literally true (exit code 0), not just true in spirit.
 
 **Overrode:** nothing.
+
+
+## Frontend Step 2 — Login: static layout
+
+**Tool:** Claude Code (Sonnet) → `frontend/src/pages/LoginPage.jsx`
+
+Asked where to place the finished design before it existed as a file; created a gitignored
+`frontend/design/` staging folder once the format (exported HTML) was confirmed, rather than
+guessing a location or having it land in shipped `src/`.
+
+**Conflict it surfaced:** the exported file is a Claude Design `.dc.html` artboard — its own
+component format (`x-dc`, `sc-if`, a `DCLogic` class) with a working fake submit handler,
+local state, and a simulated 600ms failure response. Step 2's own text is explicit that this
+step is layout only — "no form state beyond native inputs, no submit handler, no fetch" — so
+none of that logic could be carried over as-is.
+
+**My call:** none needed — stripping the interactive scaffolding down to plain uncontrolled
+inputs was exactly what Step 2 already specified, not a judgment call.
+
+**Accepted:** translated the design's `oklch()` styling to the closest Tailwind palette
+(slate for neutrals, blue-700 for the primary action, red for the reserved error state)
+rather than carrying inline styles or arbitrary oklch values over verbatim, to keep the page
+idiomatic Tailwind like the rest of the app will be.
+
+**Overrode:** nothing.
+
+
+## Frontend Step 3 — Login: wire to API and central auth
+
+**Tool:** Claude Code (Sonnet) → `api/client.js`, `hooks/useAuth.js`, `App.jsx`,
+`pages/LoginPage.jsx`
+
+Wrote all four of the doc's listed tests first in one `App.test.jsx`, ran them to confirm a
+real failure (missing modules), committed red, then implemented to green — one cycle, per the
+doc's own single red/green commit pair for this step.
+
+**Conflict it surfaced:** `@testing-library/jest-dom`'s setup needs a global `expect` to
+attach its matchers to; without `test.globals: true` in `vite.config.js` (not set in Step 1),
+the very first test run failed with `ReferenceError: expect is not defined` before any of the
+real assertions ran. Added the flag as part of the same red commit, since it's test
+infrastructure the doc's Step 1 config simply hadn't needed yet.
+
+**My call:** interrupted mid-flow — before showing the red commit message, started running
+`git status`/`git diff` to inspect what would be staged. Corrected: show the proposed commit
+message first, before running any git commands at all, not just before the `commit` itself.
+
+**Accepted:** the fourth doc-listed test ("403 from any mocked fetch call") calls `apiFetch`
+directly from the test rather than triggering it through a page, since no page fetches
+anything yet at this point in the build (`EmployeeListPage` is still Step 1's static stub) —
+still a faithful test of the *central* handler, which by design doesn't care which caller
+triggered it.
+
+**Overrode:** nothing.

@@ -341,3 +341,45 @@ doc's v3-style `tailwind.config.js` + content-glob layout entry, and asked:*
 > Keep React 19, update doc
 
 > go ahead and commit
+
+
+## Frontend Step 2 — Login: static layout
+
+**Claude Code (Sonnet)**
+
+> where do you want me to add the ui templates
+
+*Asked what form the finished pages were in, to decide where they should live:*
+
+> Exported HTML/image files
+
+*Created `frontend/design/` (gitignored) and asked for the filename.*
+
+> file name is Login.html
+
+*Read the Claude Design `.dc.html` export, stripped its interactive scaffolding (local state,
+submit handler, simulated error) down to a static layout per Step 2, and verified it renders
+and builds.*
+
+> yes, commit it
+
+
+## Frontend Step 3 — Login: wire to API and central auth
+
+**Claude Code (Sonnet)**
+
+> yes, let's start step 3
+
+*Wrote `App.test.jsx` covering all four of the doc's listed tests, ran it, hit `expect is not
+defined` from jest-dom's setup, added `test.globals: true` to `vite.config.js`, reran and
+confirmed a real red (missing `api/client` and `useAuth` modules). Started inspecting git
+state before showing the proposed red commit message:*
+
+> before every commit show me the commit message
+
+> yes, commit it
+
+*Implemented `api/client.js`, `useAuth.js`, wired `App.jsx`/`LoginPage.jsx` to green, verified
+all four tests and the production build.*
+
+> yes, commit it
