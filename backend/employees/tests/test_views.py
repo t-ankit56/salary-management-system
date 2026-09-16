@@ -1,7 +1,8 @@
 import pytest
 from rest_framework.test import APIClient
 
-from employees.models import Country, Department, Employee, Role
+from employees.models import Country, Department, Employee, EmploymentPeriod, Role
+from salary.models import SalaryPeriod
 
 
 @pytest.mark.django_db
@@ -60,3 +61,27 @@ def test_delete_employee_returns_405(reference_data):
     response = APIClient().delete(f"/api/employees/{employee.id}/")
 
     assert response.status_code == 405
+
+
+def test_create_employee_via_api_opens_both_periods(reference_data):
+    response = APIClient().post(
+        "/api/employees/",
+        {
+            "employee_code": "E001",
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "email": "jane@example.com",
+            "department": reference_data["department"].id,
+            "role": reference_data["role"].id,
+            "country": reference_data["country"].id,
+            "hire_date": "2020-01-01",
+            "base": "50000",
+            "salary_effective_from": "2020-01-01",
+        },
+        format="json",
+    )
+
+    assert response.status_code == 201
+    employee = Employee.objects.get(employee_code="E001")
+    assert EmploymentPeriod.objects.filter(employee=employee).exists()
+    assert SalaryPeriod.objects.filter(employee=employee).exists()
