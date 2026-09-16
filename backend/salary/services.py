@@ -4,8 +4,9 @@ from decimal import Decimal
 from django.db import transaction
 from django.db.models import DateField
 
+from accounts.models import User
 from employees.models import Employee
-from salary.models import SalaryPeriod
+from salary.models import SalaryCorrection, SalaryPeriod
 
 
 def record_salary_change(
@@ -37,3 +38,15 @@ def record_salary_change(
         )
 
     return new_period
+
+
+def correct_salary_period(
+    *,
+    salary_period: SalaryPeriod,
+    base: Decimal,
+    allowance: Decimal,
+    yearly_bonus: Decimal,
+    reason: str,
+    created_by: User,
+) -> SalaryCorrection:
+    pass

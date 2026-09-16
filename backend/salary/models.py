@@ -42,3 +42,7 @@ class SalaryPeriod(models.Model):
                 ],
             ),
         ]
+
+
+class SalaryCorrection(models.Model):
+    pass
