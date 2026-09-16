@@ -35,6 +35,17 @@ def _employed_employees(as_of: datetime.date) -> QuerySet:
     return Employee.objects.filter(id__in=active_ids, hire_date__lte=as_of)
 
 
+def _employed_salary_periods(as_of: datetime.date) -> tuple[QuerySet, int]:
+    employed = _employed_employees(as_of)
+    resolved = SalaryPeriod.objects.filter(
+        employee_id__in=employed.values_list("id", flat=True),
+        effective_from__lte=as_of,
+    ).filter(Q(effective_to__isnull=True) | Q(effective_to__gt=as_of))
+
+    excluded_count = employed.count() - resolved.count()
+    return resolved, excluded_count
+
+
 def total_payroll_cost(as_of: datetime.date | None = None) -> dict:
     as_of = as_of or timezone.localdate()
     _validate_as_of(as_of)
@@ -68,3 +79,19 @@ def headcount_by_department(as_of: datetime.date | None = None) -> dict:
         "headcount_by_department": {row["department__name"]: row["count"] for row in counts},
         "excluded_count": 0,
     }
+
+
+def average_salary_by_department(as_of: datetime.date | None = None) -> dict:
+    pass
+
+
+def average_salary_by_country(as_of: datetime.date | None = None) -> dict:
+    pass
+
+
+def average_bonus_by_department(as_of: datetime.date | None = None) -> dict:
+    pass
+
+
+def headcount_by_country(as_of: datetime.date | None = None) -> dict:
+    pass
