@@ -8,6 +8,7 @@ class UserAdmin(DjangoUserAdmin):
     ordering = ["email"]
     list_display = ["email", "is_staff", "is_active"]
     search_fields = ["email"]
+    readonly_fields = ["date_joined"]
     fieldsets = (
         (None, {"fields": ("email", "password")}),
         (
