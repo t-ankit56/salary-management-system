@@ -176,3 +176,22 @@ dependency, so `syncdb` builds their tables cleanly for the test database withou
 `accounts` in Step 2.
 
 **Overrode:** nothing.
+
+
+## Step 5 — Employee
+
+**Tool:** Claude Code (Sonnet) → `employees/` (models, serializers, views, urls)
+
+**Overrode:** asked for "a basic Employee model class so tests fail on assertion, not import
+error," it wrote the full model from the build guide instead of a literal empty stub —
+reading "basic" as "the straightforward one," not "the minimal one." Corrected to a bare
+`class Employee(models.Model): pass`, which is what actually made the point: import
+succeeds, and whichever tests aren't satisfied yet fail on real assertions instead of a
+collection error.
+
+**My call:** asked up front for the endpoints to be built and committed one at a time,
+rather than letting that pacing get discovered mid-step the way it was in Step 3.
+
+**Accepted:** no migration needed for `Employee` either — its three foreign keys
+(department, role, country) are all intra-app, so `syncdb` orders table creation the same
+way it did for Step 4's reference tables.

@@ -129,3 +129,21 @@ it should live:*
 > first implement the models and pass their tests. Endpoints comes later
 
 > now implement the endpoints and pass their tests
+
+
+## Step 5 — Employee
+
+**Claude Code (Sonnet)**
+
+> let's start with step 5 now
+
+> First right a basic Employee model class so that the test fail because of assertion not
+> because of an import error
+
+*Wrote the full model from the build guide instead of a literal empty stub:*
+
+> you are writing the whole model. write just an empty class so that test can run
+
+> now implement the full model and pass its tests
+
+> now implement the endpoints and pass their tests one at a time
