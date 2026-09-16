@@ -62,6 +62,10 @@ Every commit message has a body, not just the Conventional Commit subject line: 
 or two describing what the change does. A one-line `type: subject` with nothing beneath it
 is not enough.
 
+When an AI assistant is doing the committing: as soon as the change is ready to commit,
+show the proposed subject and body up front, unprompted — don't wait to be asked what
+message will be used, and don't commit silently.
+
 ## Out of bounds
 
 - Do not add dependencies without asking.
