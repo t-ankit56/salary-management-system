@@ -1,9 +1,13 @@
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from employees.filters import EmployeeFilter
 from employees.models import Country, Department, Employee, Role
 from employees.serializers import (
     CountrySerializer,
@@ -13,6 +17,10 @@ from employees.serializers import (
     StatusChangeSerializer,
 )
 from employees.services import deactivate_employee, reactivate_employee
+
+
+class EmployeePagination(PageNumberPagination):
+    page_size = 25
 
 
 class DepartmentListCreateView(ListCreateAPIView):
@@ -46,8 +54,12 @@ class CountryDetailView(RetrieveUpdateAPIView):
 
 
 class EmployeeListCreateView(ListCreateAPIView):
-    queryset = Employee.objects.all()
+    queryset = Employee.objects.order_by("employee_code")
     serializer_class = EmployeeSerializer
+    pagination_class = EmployeePagination
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_class = EmployeeFilter
+    search_fields = ["first_name", "last_name", "employee_code"]
 
 
 class EmployeeDetailView(RetrieveUpdateAPIView):
