@@ -1,6 +1,7 @@
 from rest_framework.test import APIClient
 
 from salary.models import SalaryPeriod
+from salary.services import correct_salary_period
 
 
 def test_salary_change_closes_old_and_opens_new_period(employee):
@@ -73,3 +74,59 @@ def test_salary_correction_missing_reason_returns_400(employee, user):
     )
 
     assert response.status_code == 400
+
+
+def test_salary_periods_returned_newest_first_with_correction_counts(employee, user):
+    period1 = SalaryPeriod.objects.create(
+        employee=employee, base="50000", effective_from="2020-01-01", effective_to="2021-01-01"
+    )
+    period2 = SalaryPeriod.objects.create(
+        employee=employee, base="55000", effective_from="2021-01-01"
+    )
+    correct_salary_period(
+        salary_period=period2,
+        base="56000",
+        allowance=0,
+        yearly_bonus=0,
+        reason="Adjustment",
+        created_by=user,
+    )
+
+    response = APIClient().get(f"/api/employees/{employee.id}/salary-periods/")
+
+    assert response.status_code == 200
+    results = response.data
+    assert results[0]["id"] == period2.id
+    assert results[0]["correction_count"] == 1
+    assert results[1]["id"] == period1.id
+    assert results[1]["correction_count"] == 0
+
+
+def test_salary_period_corrections_endpoint_returns_log(employee, user):
+    period = SalaryPeriod.objects.create(
+        employee=employee, base="50000", effective_from="2020-01-01"
+    )
+    correct_salary_period(
+        salary_period=period,
+        base="55000",
+        allowance=0,
+        yearly_bonus=0,
+        reason="Backpay",
+        created_by=user,
+    )
+
+    response = APIClient().get(
+        f"/api/employees/{employee.id}/salary-periods/{period.id}/corrections/"
+    )
+
+    assert response.status_code == 200
+    assert len(response.data) == 1
+    assert response.data[0]["reason"] == "Backpay"
+
+
+def test_salary_period_amounts_serialise_as_strings(employee):
+    SalaryPeriod.objects.create(employee=employee, base="50000", effective_from="2020-01-01")
+
+    response = APIClient().get(f"/api/employees/{employee.id}/salary-periods/")
+
+    assert isinstance(response.data[0]["base"], str)
