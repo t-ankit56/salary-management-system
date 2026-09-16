@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useEmployees } from '../hooks/useEmployees'
 
 const PAGE_SIZE = 25
@@ -26,6 +26,7 @@ function StatusBadge({ status }) {
 }
 
 function EmployeeListPage() {
+  const navigate = useNavigate()
   const { employees, count, departments, roles, countries, filters, setFilter, setPage } =
     useEmployees()
 
@@ -132,7 +133,11 @@ function EmployeeListPage() {
             </thead>
             <tbody>
               {employees.map((employee) => (
-                <tr key={employee.id} className="border-b border-slate-100">
+                <tr
+                  key={employee.id}
+                  onClick={() => navigate(`/employees/${employee.id}`)}
+                  className="border-b border-slate-100 cursor-pointer hover:bg-slate-50"
+                >
                   <td className="px-4 py-[13px] text-slate-600 font-mono">{employee.employee_code}</td>
                   <td className="px-4 py-[13px] text-slate-800 font-semibold">
                     {employee.first_name} {employee.last_name}
