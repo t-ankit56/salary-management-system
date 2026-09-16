@@ -281,3 +281,26 @@ then asked whether to amend the already-committed red commit or create a new one
 > start step 13
 
 > now implement the full endpoints and pass their tests
+
+
+## Step 14–15 — Reports
+
+**Claude Code (Sonnet)**
+
+> start step 14
+
+> now implement the full functions and pass its tests
+
+*Deferred the `GET /api/reports/{name}/` endpoint, since Step 14's own text doesn't mention
+it and the API table describes one shared endpoint that Step 15's reports would also need:*
+
+> start step 15
+
+> now implement the full functions and pass its tests
+
+*Asked whether to also refactor Step 14's `total_payroll_cost` onto the same aggregate-based
+helper used for the four new reports, for consistency:*
+
+> yes, refactor them now and commit as refactor
+
+> sure build the endpoint now

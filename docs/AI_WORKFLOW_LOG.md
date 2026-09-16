@@ -365,3 +365,33 @@ Small, well-specified step — no build-guide gaps, no corrections needed.
   `.order_by("employee_code")`.
 
 **Overrode:** nothing.
+
+
+## Step 14–15 — Reports
+
+**Tool:** Claude Code (Sonnet) → `reporting/services.py`, `reporting/views.py`
+
+Two build-guide steps handled together in this log, since they share one endpoint and one
+internal helper.
+
+**My call:**
+- Deferred `GET /api/reports/{name}/` until Step 15's reports existed too, rather than
+  building it half-finished against just Step 14's two reports.
+- Gave `headcount_by_department` (and later `headcount_by_country`) an `excluded_count`
+  field too, always `0`, even though neither needs salary resolution — the doc's "every
+  response carries `excluded_count`" reads as a blanket rule, not one scoped to payroll
+  cost specifically.
+
+**Accepted:**
+- Implemented the four Step 15 reports with DB-level `Avg`/`Count` aggregates via a new
+  shared `_employed_salary_periods` helper, rather than repeating Step 14's per-employee
+  `resolve_as_of` loop four more times — meaningfully more efficient at the project's
+  stated ~10,000-employee scale.
+- Asked whether to bring Step 14's `total_payroll_cost` onto the same helper for
+  consistency; refactored it as its own commit once confirmed, with the existing test
+  suite as the safety net — behaviour unchanged, all tests passed without modification.
+- Money and the `as_of` date in the raw report-dict responses serialize correctly for
+  free, since DRF's default `JSONEncoder` already handles `Decimal` and `date` — same
+  story as Step 12's string-serialization test.
+
+**Overrode:** nothing.
