@@ -222,3 +222,30 @@ app's changelist) but never opened an actual change form. `date_joined` uses
 `auto_now_add=True`, which Django makes non-editable, but `UserAdmin.fieldsets` still listed
 it — a `ModelForm` error that only surfaces on the `User` change page specifically, which
 its curl checks never hit. Found by hand, fixed by adding it to `readonly_fields`.
+
+
+## Step 6 — Period constraints
+
+**Tool:** Claude Code (Sonnet) → `employees/`, `salary/`, `common/constraints.py`
+
+**Overrode:** started scaffolding the `salary` app's tests before `EmploymentPeriod` was
+even implemented. Told to finish one model completely — tests, constraints, migration,
+admin — before starting the other.
+
+**Accepted:**
+- `DateRangeFunc` lives in `common/constraints.py`, not duplicated in `employees` and
+  `salary` — the exclusion constraint expression is identical for both models, and this is
+  exactly what `common/` was scoped for in the build guide's Layout section.
+- Hit a `CheckConstraint.check` deprecation warning (Django 5.2 deprecated `check=` for
+  `condition=`); fixed it and regenerated the still-uncommitted migration cleanly rather
+  than leaving the warning in place.
+- Django's autodetector already chained the cross-app dependency correctly on its own —
+  `salary`'s migration depends on `employees`'s latest migration at generation time, which
+  transitively requires `btree_gist` — but added the explicit dependency on
+  `0002_enable_btree_gist` anyway, per the build guide, so it's visible in the migration
+  itself rather than relying on an implicit chain that could break under a future squash.
+
+**My call:** for both models, required admin registration plus an actual end-to-end check —
+list page, add-form render, *and* a real form submission — before commit, not just a
+page-load check. Direct consequence of the `date_joined` bug slipping past a shallower
+check earlier.

@@ -168,3 +168,24 @@ registered, not even the custom `User` model:*
 > 'date_joined' cannot be specified for User model form as it is a non-editable field. Check
 > fields/fieldsets/exclude attributes of class UserAdmin.
 > an error I am getting in admin
+
+
+## Step 6 — Period constraints
+
+**Claude Code (Sonnet)**
+
+> let's start with step 6 now
+
+*Started scaffolding the salary app's tests before EmploymentPeriod was even implemented:*
+
+> lets pass the employment period tests first then go to salary perioid
+
+> now implement the full model and pass its tests
+
+> implement admin page too for this model before commit
+
+> now implement the salary period tests
+
+> now implement the full model and pass its tests
+
+> add yhis model in admin too before commit
