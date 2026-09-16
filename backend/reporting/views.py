@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db.models import DateField
 from django.http import Http404
 from rest_framework.response import Response
@@ -23,6 +25,14 @@ REPORTS = {
 }
 
 
+def _stringify_decimals(value):
+    if isinstance(value, Decimal):
+        return str(value.quantize(Decimal("0.01")))
+    if isinstance(value, dict):
+        return {key: _stringify_decimals(v) for key, v in value.items()}
+    return value
+
+
 class ReportView(APIView):
     def get(self, request, name):
         report_func = REPORTS.get(name)
@@ -41,4 +51,4 @@ class ReportView(APIView):
                 status=400,
             )
 
-        return Response(result)
+        return Response(_stringify_decimals(result))
