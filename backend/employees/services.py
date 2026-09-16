@@ -2,6 +2,7 @@ import datetime
 from decimal import Decimal
 
 from django.db import transaction
+from django.db.models import DateField
 
 from employees.models import Country, Department, Employee, EmploymentPeriod, Role
 from salary.models import SalaryPeriod
@@ -47,8 +48,20 @@ def create_employee(
 
 
 def deactivate_employee(*, employee: Employee, effective_date: datetime.date) -> EmploymentPeriod:
-    pass
+    effective_date = DateField().to_python(effective_date)
+    try:
+        open_period = EmploymentPeriod.objects.get(employee=employee, effective_to__isnull=True)
+    except EmploymentPeriod.DoesNotExist:
+        raise ValueError("Employee is already inactive") from None
+
+    open_period.effective_to = effective_date
+    open_period.save()
+    return open_period
 
 
 def reactivate_employee(*, employee: Employee, effective_date: datetime.date) -> EmploymentPeriod:
-    pass
+    effective_date = DateField().to_python(effective_date)
+    if EmploymentPeriod.objects.filter(employee=employee, effective_to__isnull=True).exists():
+        raise ValueError("Employee is already active")
+
+    return EmploymentPeriod.objects.create(employee=employee, effective_from=effective_date)
