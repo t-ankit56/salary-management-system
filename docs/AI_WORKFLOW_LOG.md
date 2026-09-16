@@ -257,8 +257,32 @@ check earlier.
 
 Small, well-specified step — no build-guide gaps, no corrections needed.
 
-**My call:** used `EmploymentPeriod` as the concrete test subject, since it's the model
+**Accepted:** used `EmploymentPeriod` as the concrete test subject, since it's the model
 already fully built, even though `resolve_as_of` itself is generic over any period-shaped
 queryset — reusable for `SalaryPeriod` once reporting needs it.
 
 **Overrode:** nothing.
+
+
+## Step 8 — Creating an employee opens periods
+
+**Tool:** Claude Code (Sonnet) → `employees/services.py`, `employees/serializers.py`
+
+Flagged, unprompted, that `EmployeeListCreateView` never called `create_employee` —
+`POST /api/employees/` created a bare `Employee` row with no periods, unlike Step 16's
+roster upload and Step 17's seed command, both specified to open both periods on creation.
+Checked Steps 9–18 to confirm the build guide never revisits this, then asked before fixing
+it.
+
+**My call:** wire it now rather than leave the inconsistency for a later step.
+
+**Overrode:** told to wire the fix, it went straight to editing the serializer — skipping
+its own established red-first discipline, and leaving Step 8's own green commit
+unconfirmed in the process. Corrected: commit the still-pending `create_employee`
+implementation first, then a dedicated red test proving the endpoint gap, *then* wire the
+fix.
+
+**Accepted:** the fix lives in `EmployeeSerializer.create()`, not the view — `base`,
+`allowance`, `yearly_bonus`, `currency`, `salary_effective_from` added as declared
+`write_only` serializer fields (not model fields), delegating to `create_employee`. Only
+`create()` changes; `update()` (the `PATCH` path) is untouched.

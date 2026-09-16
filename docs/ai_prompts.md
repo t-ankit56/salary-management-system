@@ -198,3 +198,27 @@ registered, not even the custom `User` model:*
 > let's start with step 7 now
 
 > now implement the full function and pass its tests
+
+
+## Step 8 — Creating an employee opens periods
+
+**Claude Code (Sonnet)**
+
+> let's start with step 8 now
+
+> now implement the full function and pass its tests
+
+*Flagged, unprompted, that the actual `POST /api/employees/` endpoint bypasses
+`create_employee` entirely — not part of Step 8's test list, but inconsistent with Step 16's
+roster upload and Step 17's seed command, both specified to open both periods on creation:*
+
+> is it wired in any other step of the doc?
+
+*Checked Steps 9–18: never revisited. Reported back and asked whether to wire it now.*
+
+> yes, wire the view now
+
+*Started editing the serializer directly, skipping its own red-first discipline:*
+
+> you need to commit a red test befor wiring it. also commit the previous step 8 commit
+> before this red
