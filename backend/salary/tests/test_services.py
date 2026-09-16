@@ -18,6 +18,7 @@ def test_recording_change_closes_old_period_and_opens_new_one(employee):
     new_period = record_salary_change(employee=employee, base="60000", effective_from="2021-01-01")
 
     old_period.refresh_from_db()
+    new_period.refresh_from_db()
     assert old_period.effective_to == date(2021, 1, 1)
     assert new_period.effective_from == date(2021, 1, 1)
     assert new_period.effective_to is None

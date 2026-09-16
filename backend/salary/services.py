@@ -1,6 +1,9 @@
 import datetime
 from decimal import Decimal
 
+from django.db import transaction
+from django.db.models import DateField
+
 from employees.models import Employee
 from salary.models import SalaryPeriod
 
@@ -14,4 +17,23 @@ def record_salary_change(
     yearly_bonus: Decimal = 0,
     currency: str = "USD",
 ) -> SalaryPeriod:
-    pass
+    effective_from = DateField().to_python(effective_from)
+    open_period = SalaryPeriod.objects.get(employee=employee, effective_to__isnull=True)
+
+    if effective_from <= open_period.effective_from:
+        raise ValueError("Cannot backdate a change before the current period's start")
+
+    with transaction.atomic():
+        open_period.effective_to = effective_from
+        open_period.save()
+
+        new_period = SalaryPeriod.objects.create(
+            employee=employee,
+            base=base,
+            allowance=allowance,
+            yearly_bonus=yearly_bonus,
+            currency=currency,
+            effective_from=effective_from,
+        )
+
+    return new_period
