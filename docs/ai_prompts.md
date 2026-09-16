@@ -254,3 +254,12 @@ then asked whether to amend the already-committed red commit or create a new one
 > amend it
 
 > now implement the full function and pass its tests
+
+
+## Step 11 — Status changes
+
+**Claude Code (Sonnet)**
+
+> start step 11
+
+> now implement the full function and pass its tests

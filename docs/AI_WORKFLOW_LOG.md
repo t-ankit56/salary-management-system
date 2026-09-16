@@ -319,3 +319,18 @@ never wired to its service in any step) on its own, checked the remaining steps 
 followed its own red-first discipline for the fix without needing correction this time.
 
 **Overrode:** nothing.
+
+
+## Step 11 — Status changes
+
+**Tool:** Claude Code (Sonnet) → `employees/services.py`, `employees/views.py`
+
+**Accepted:**
+- Unlike Steps 8–10, this step's endpoints are named directly in the build guide's own
+  text, not a separately-discovered gap — built them as part of the same cycle instead of
+  flagging them afterward.
+- Tested both symmetric invariants from the prose ("cannot be deactivated when already
+  inactive, or reactivated when already active"), even though the bullet list only names
+  the deactivation side.
+
+**Overrode:** nothing.
