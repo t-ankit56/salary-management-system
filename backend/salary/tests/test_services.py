@@ -118,6 +118,7 @@ def test_correction_writes_log_with_previous_and_new_values(employee, user):
         created_by=user,
     )
 
+    correction.refresh_from_db()
     assert correction.previous_base == Decimal(50000)
     assert correction.previous_allowance == Decimal(500)
     assert correction.previous_yearly_bonus == Decimal(1000)

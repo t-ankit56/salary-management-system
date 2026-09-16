@@ -3,6 +3,7 @@ from django.contrib.postgres.fields import RangeOperators
 from django.db import models
 from django.db.models import CheckConstraint, F, Q, UniqueConstraint, Value
 
+from accounts.models import User
 from common.constraints import DateRangeFunc
 from employees.models import Employee
 
@@ -45,4 +46,20 @@ class SalaryPeriod(models.Model):
 
 
 class SalaryCorrection(models.Model):
-    pass
+    salary_period = models.ForeignKey(
+        SalaryPeriod, on_delete=models.CASCADE, related_name="corrections"
+    )
+
+    previous_base = models.DecimalField(max_digits=12, decimal_places=2)
+    previous_allowance = models.DecimalField(max_digits=12, decimal_places=2)
+    previous_yearly_bonus = models.DecimalField(max_digits=12, decimal_places=2)
+
+    new_base = models.DecimalField(max_digits=12, decimal_places=2)
+    new_allowance = models.DecimalField(max_digits=12, decimal_places=2)
+    new_yearly_bonus = models.DecimalField(max_digits=12, decimal_places=2)
+
+    reason = models.TextField()
+    created_by = models.ForeignKey(
+        User, on_delete=models.PROTECT, related_name="salary_corrections"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -49,4 +49,25 @@ def correct_salary_period(
     reason: str,
     created_by: User,
 ) -> SalaryCorrection:
-    pass
+    if not reason:
+        raise ValueError("A reason is required for a correction")
+
+    with transaction.atomic():
+        correction = SalaryCorrection.objects.create(
+            salary_period=salary_period,
+            previous_base=salary_period.base,
+            previous_allowance=salary_period.allowance,
+            previous_yearly_bonus=salary_period.yearly_bonus,
+            new_base=base,
+            new_allowance=allowance,
+            new_yearly_bonus=yearly_bonus,
+            reason=reason,
+            created_by=created_by,
+        )
+
+        salary_period.base = base
+        salary_period.allowance = allowance
+        salary_period.yearly_bonus = yearly_bonus
+        salary_period.save()
+
+    return correction
