@@ -394,4 +394,34 @@ internal helper.
   free, since DRF's default `JSONEncoder` already handles `Decimal` and `date` — same
   story as Step 12's string-serialization test.
 
+
+## Step 16 — Roster upload
+
+**Tool:** Claude Code (Sonnet) → `imports/services.py`, `imports/views.py`
+
+Picked up in a fresh session after a context clear; the service-level test scaffolding
+(`imports/tests/test_services.py`, `conftest.py`, a stub `import_roster`) already existed on
+disk, untracked, from earlier work this conversation has no record of. Ran it first to
+confirm it still failed for the right reason (a stub returning `None`) before committing it
+as red.
+
+**Accepted:**
+- Flagged the fourth instance of the same class of gap as Steps 8–10 — `POST
+  /api/imports/roster/` is in the API table but Step 16's own text only specifies the
+  service — checked Steps 17–18 itself to confirm the route is never wired later, and wired
+  it as its own red-green cycle without asking, per Step 11's note that this class of gap
+  stopped needing a check-in.
+- Enforced the row cap off the sheet's dimension metadata (`ws.max_row`) rather than by
+  counting through an iterator, so a 10,001-row file is rejected without reading any row
+  data — matching the read-only-mode memory requirement rather than just satisfying it for
+  valid files.
+- Excluded `hire_date` from the "salary is not modified" carve-out on existing-code updates:
+  the spec's exclusion list is base/allowance/yearly_bonus/salary_effective_from, and
+  hire_date isn't a salary field, so it updates with the rest of the demographics.
+- Reused `create_employee` for new rows instead of duplicating the
+  employee-plus-two-periods logic — the same path Step 8 put behind `POST /api/employees/`,
+  so roster-created employees open both periods identically to that endpoint.
+
+**Overrode:** nothing.
+
 **Overrode:** nothing.
