@@ -2,6 +2,7 @@ import pytest
 from rest_framework.test import APIClient
 
 from employees.models import Country, Department, Employee, EmploymentPeriod, Role
+from employees.services import deactivate_employee
 from salary.models import SalaryPeriod
 
 
@@ -151,3 +152,62 @@ def test_reactivate_endpoint_opens_new_period(reference_data):
 
     assert response.status_code == 200
     assert EmploymentPeriod.objects.filter(employee=employee, effective_to=None).exists()
+
+
+def test_employee_list_filters_by_department(two_employees):
+    response = APIClient().get(f"/api/employees/?department={two_employees['a'].department_id}")
+
+    codes = [e["employee_code"] for e in response.data["results"]]
+    assert codes == ["E001"]
+
+
+def test_employee_list_filters_by_role(two_employees):
+    response = APIClient().get(f"/api/employees/?role={two_employees['a'].role_id}")
+
+    codes = [e["employee_code"] for e in response.data["results"]]
+    assert codes == ["E001"]
+
+
+def test_employee_list_filters_by_country(two_employees):
+    response = APIClient().get(f"/api/employees/?country={two_employees['a'].country_id}")
+
+    codes = [e["employee_code"] for e in response.data["results"]]
+    assert codes == ["E001"]
+
+
+def test_employee_list_filters_by_status(two_employees):
+    deactivate_employee(employee=two_employees["a"], effective_date="2020-06-01")
+
+    active = APIClient().get("/api/employees/?status=active")
+    inactive = APIClient().get("/api/employees/?status=inactive")
+
+    active_codes = [e["employee_code"] for e in active.data["results"]]
+    inactive_codes = [e["employee_code"] for e in inactive.data["results"]]
+
+    assert active_codes == ["E002"]
+    assert inactive_codes == ["E001"]
+
+
+def test_employee_list_search_matches_name_and_code(two_employees):
+    by_name = APIClient().get("/api/employees/?search=Alice")
+    by_code = APIClient().get("/api/employees/?search=E002")
+
+    assert [e["employee_code"] for e in by_name.data["results"]] == ["E001"]
+    assert [e["employee_code"] for e in by_code.data["results"]] == ["E002"]
+
+
+def test_employee_list_page_size_honoured(reference_data):
+    for i in range(30):
+        Employee.objects.create(
+            employee_code=f"E{i:03d}",
+            first_name="Jane",
+            last_name="Doe",
+            email=f"jane{i}@example.com",
+            hire_date="2020-01-01",
+            **reference_data,
+        )
+
+    response = APIClient().get("/api/employees/")
+
+    assert len(response.data["results"]) == 25
+    assert response.data["count"] == 30
