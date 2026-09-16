@@ -85,3 +85,69 @@ def test_create_employee_via_api_opens_both_periods(reference_data):
     employee = Employee.objects.get(employee_code="E001")
     assert EmploymentPeriod.objects.filter(employee=employee).exists()
     assert SalaryPeriod.objects.filter(employee=employee).exists()
+
+
+def test_deactivate_endpoint_closes_open_period(reference_data):
+    employee = Employee.objects.create(
+        employee_code="E001",
+        first_name="Jane",
+        last_name="Doe",
+        email="jane@example.com",
+        hire_date="2020-01-01",
+        **reference_data,
+    )
+    EmploymentPeriod.objects.create(employee=employee, effective_from="2020-01-01")
+
+    response = APIClient().post(
+        f"/api/employees/{employee.id}/deactivate/",
+        {"effective_date": "2021-01-01"},
+        format="json",
+    )
+
+    assert response.status_code == 200
+    assert EmploymentPeriod.objects.get(employee=employee).effective_to is not None
+
+
+def test_deactivate_endpoint_already_inactive_returns_400(reference_data):
+    employee = Employee.objects.create(
+        employee_code="E001",
+        first_name="Jane",
+        last_name="Doe",
+        email="jane@example.com",
+        hire_date="2020-01-01",
+        **reference_data,
+    )
+    EmploymentPeriod.objects.create(
+        employee=employee, effective_from="2020-01-01", effective_to="2021-01-01"
+    )
+
+    response = APIClient().post(
+        f"/api/employees/{employee.id}/deactivate/",
+        {"effective_date": "2021-06-01"},
+        format="json",
+    )
+
+    assert response.status_code == 400
+
+
+def test_reactivate_endpoint_opens_new_period(reference_data):
+    employee = Employee.objects.create(
+        employee_code="E001",
+        first_name="Jane",
+        last_name="Doe",
+        email="jane@example.com",
+        hire_date="2020-01-01",
+        **reference_data,
+    )
+    EmploymentPeriod.objects.create(
+        employee=employee, effective_from="2020-01-01", effective_to="2021-01-01"
+    )
+
+    response = APIClient().post(
+        f"/api/employees/{employee.id}/reactivate/",
+        {"effective_date": "2021-06-01"},
+        format="json",
+    )
+
+    assert response.status_code == 200
+    assert EmploymentPeriod.objects.filter(employee=employee, effective_to=None).exists()
