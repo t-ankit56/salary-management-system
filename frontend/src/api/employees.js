@@ -1,5 +1,9 @@
 import { apiFetch } from './client'
 
+export function getEmployee(id) {
+  return apiFetch(`/api/employees/${id}/`)
+}
+
 export function listEmployees({ department, role, country, status, search, page } = {}) {
   const params = new URLSearchParams()
   if (department) params.set('department', department)

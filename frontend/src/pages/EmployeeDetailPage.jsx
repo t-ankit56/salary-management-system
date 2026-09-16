@@ -1,42 +1,10 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Fragment, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
 import SalaryChangeModal from '../components/modals/SalaryChangeModal'
 import SalaryCorrectionModal from '../components/modals/SalaryCorrectionModal'
 import StatusChangeModal from '../components/modals/StatusChangeModal'
-
-const EMPLOYEE = {
-  id: 3,
-  employee_code: 'E100',
-  first_name: 'Jane',
-  last_name: 'Doe',
-  department_name: 'Engineering',
-  role_name: 'Manager',
-  country_name: 'India',
-  status: 'active',
-}
-
-const SALARY_HISTORY = [
-  {
-    id: 3,
-    base: '65000.00',
-    allowance: '5000.00',
-    yearly_bonus: '3000.00',
-    currency: 'USD',
-    effective_from: '2023-01-01',
-    effective_to: null,
-    correction_count: 0,
-  },
-  {
-    id: 2,
-    base: '60000.00',
-    allowance: '5000.00',
-    yearly_bonus: '3000.00',
-    currency: 'USD',
-    effective_from: '2022-01-15',
-    effective_to: '2023-01-01',
-    correction_count: 1,
-  },
-]
+import { useEmployee } from '../hooks/useEmployee'
+import { useSalaryHistory } from '../hooks/useSalaryHistory'
 
 function StatusBadge({ status }) {
   const isActive = status === 'active'
@@ -52,8 +20,15 @@ function StatusBadge({ status }) {
 }
 
 function EmployeeDetailPage() {
+  const { id } = useParams()
   const [openModal, setOpenModal] = useState(null)
-  const employee = EMPLOYEE
+  const { employee } = useEmployee(id)
+  const { history, expandedPeriodId, corrections, toggleCorrections } = useSalaryHistory(id)
+
+  if (!employee) {
+    return null
+  }
+
   const isActive = employee.status === 'active'
 
   return (
@@ -137,26 +112,47 @@ function EmployeeDetailPage() {
               </tr>
             </thead>
             <tbody>
-              {SALARY_HISTORY.map((period) => (
-                <tr key={period.id} className="border-b border-slate-100">
-                  <td className="px-4 py-3 text-slate-600">{period.effective_from}</td>
-                  <td className="px-4 py-3 text-slate-600">{period.effective_to ?? '—'}</td>
-                  <td className="px-4 py-3 text-slate-800 text-right">{period.base}</td>
-                  <td className="px-4 py-3 text-slate-800 text-right">{period.allowance}</td>
-                  <td className="px-4 py-3 text-slate-800 text-right">{period.yearly_bonus}</td>
-                  <td className="px-4 py-3 text-slate-600">{period.currency}</td>
-                  <td className="px-4 py-3 text-center">
-                    <span
-                      className={
-                        period.correction_count > 0
-                          ? 'font-semibold text-blue-700 underline cursor-pointer'
-                          : 'text-slate-500'
-                      }
-                    >
-                      {period.correction_count}
-                    </span>
-                  </td>
-                </tr>
+              {history.map((period) => (
+                <Fragment key={period.id}>
+                  <tr className="border-b border-slate-100">
+                    <td className="px-4 py-3 text-slate-600">{period.effective_from}</td>
+                    <td className="px-4 py-3 text-slate-600">{period.effective_to ?? '—'}</td>
+                    <td className="px-4 py-3 text-slate-800 text-right">{period.base}</td>
+                    <td className="px-4 py-3 text-slate-800 text-right">{period.allowance}</td>
+                    <td className="px-4 py-3 text-slate-800 text-right">{period.yearly_bonus}</td>
+                    <td className="px-4 py-3 text-slate-600">{period.currency}</td>
+                    <td className="px-4 py-3 text-center">
+                      {period.correction_count > 0 ? (
+                        <button
+                          type="button"
+                          onClick={() => toggleCorrections(period.id)}
+                          className="font-semibold text-blue-700 underline cursor-pointer"
+                        >
+                          {period.correction_count}
+                        </button>
+                      ) : (
+                        <span className="text-slate-500">{period.correction_count}</span>
+                      )}
+                    </td>
+                  </tr>
+                  {expandedPeriodId === period.id && (
+                    <tr className="border-b border-slate-100 bg-slate-50">
+                      <td colSpan={7} className="px-4 py-3">
+                        <div className="flex flex-col gap-2">
+                          {corrections.map((correction) => (
+                            <div key={correction.id} className="text-[13px] text-slate-600">
+                              <span className="font-semibold text-slate-800">{correction.created_at}</span>{' '}
+                              — base {correction.previous_base} → {correction.new_base}, allowance{' '}
+                              {correction.previous_allowance} → {correction.new_allowance}, bonus{' '}
+                              {correction.previous_yearly_bonus} → {correction.new_yearly_bonus}
+                              <div className="text-slate-500">{correction.reason}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               ))}
             </tbody>
           </table>
@@ -167,7 +163,7 @@ function EmployeeDetailPage() {
         <SalaryChangeModal onClose={() => setOpenModal(null)} />
       )}
       {openModal === 'correct' && (
-        <SalaryCorrectionModal period={SALARY_HISTORY[0]} onClose={() => setOpenModal(null)} />
+        <SalaryCorrectionModal period={history[0]} onClose={() => setOpenModal(null)} />
       )}
       {openModal === 'status' && (
         <StatusChangeModal
