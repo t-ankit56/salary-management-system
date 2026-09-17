@@ -29,5 +29,6 @@ Replace ACME's spreadsheet-based salary tracking for ~10,000 employees across mu
 - **Bulk import of historical salary periods** — a real gap: history begins at migration, so pre-migration dates return the exclusion response until history accrues. Deferred because writing into already-occupied time ranges safely requires validation against stored history and a preview step, since a bad import silently rewrites past reports. The schema already supports arbitrary past periods, so nothing needs restructuring to add it.
 - **Partial-success uploads** — all-or-nothing gives a simpler mental model: fix the file, upload again.
 - **Distributed architecture** — narrow scope, single user; service boundaries would add operational complexity with nothing gained.
+- **Mobile view** — simple frontend developed for assessment purpose. Can be updated when required.
 
 *Design decisions, data integrity rules, non-functional requirements, testing approach and extended tradeoff reasoning are documented separately.*
