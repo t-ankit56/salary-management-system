@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { listCountries, listDepartments, listRoles } from '../api/employees'
+import { useNavigate, useParams } from 'react-router-dom'
+import { createEmployee, listCountries, listDepartments, listRoles } from '../api/employees'
 
 const initialForm = {
   employee_code: '',
@@ -26,12 +26,15 @@ const selectClass =
 
 function EmployeeFormPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const isEdit = Boolean(id)
 
   const [form, setForm] = useState(initialForm)
   const [departments, setDepartments] = useState([])
   const [roles, setRoles] = useState([])
   const [countries, setCountries] = useState([])
+  const [bannerError, setBannerError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
 
   useEffect(() => {
     listDepartments().then(({ data }) => setDepartments(data ?? []))
@@ -43,6 +46,46 @@ function EmployeeFormPage() {
     setForm((f) => ({ ...f, [key]: value }))
   }
 
+  function handleCancel() {
+    navigate(isEdit ? `/employees/${id}` : '/employees')
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setBannerError('')
+    setFieldErrors({})
+
+    if (isEdit) {
+      return
+    }
+
+    const { status, data } = await createEmployee({
+      employee_code: form.employee_code,
+      first_name: form.first_name,
+      last_name: form.last_name,
+      email: form.email,
+      department: Number(form.department),
+      role: Number(form.role),
+      country: Number(form.country),
+      hire_date: form.hire_date,
+      base: form.base,
+      allowance: form.allowance,
+      yearly_bonus: form.yearly_bonus,
+      currency: form.currency,
+      salary_effective_from: form.salary_effective_from,
+    })
+
+    if (status === 201) {
+      navigate(`/employees/${data.id}`)
+      return
+    }
+    if (data?.detail) {
+      setBannerError(data.detail)
+    } else {
+      setFieldErrors(data ?? {})
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-[760px] mx-auto">
@@ -50,7 +93,19 @@ function EmployeeFormPage() {
           {isEdit ? 'Edit Employee' : 'New Employee'}
         </h1>
 
-        <div className="bg-white border border-slate-200 rounded-lg p-7">
+        <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-lg p-7">
+          {bannerError && (
+            <div
+              role="alert"
+              className="flex items-start gap-2 px-3 py-2.5 mb-4 bg-red-50 border border-red-200 rounded-md text-red-700 text-[13px] leading-snug"
+            >
+              <span className="flex-shrink-0 w-4 h-4 rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center mt-px">
+                !
+              </span>
+              <span>{bannerError}</span>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label htmlFor="employee_code" className={labelClass}>
@@ -62,6 +117,9 @@ function EmployeeFormPage() {
                 onChange={(e) => updateField('employee_code', e.target.value)}
                 className={inputClass}
               />
+              {fieldErrors.employee_code && (
+                <span className="text-xs text-red-600">{fieldErrors.employee_code[0]}</span>
+              )}
             </div>
             <div />
             <div className="flex flex-col gap-1.5">
@@ -74,6 +132,9 @@ function EmployeeFormPage() {
                 onChange={(e) => updateField('first_name', e.target.value)}
                 className={inputClass}
               />
+              {fieldErrors.first_name && (
+                <span className="text-xs text-red-600">{fieldErrors.first_name[0]}</span>
+              )}
             </div>
             <div className="flex flex-col gap-1.5">
               <label htmlFor="last_name" className={labelClass}>
@@ -85,6 +146,9 @@ function EmployeeFormPage() {
                 onChange={(e) => updateField('last_name', e.target.value)}
                 className={inputClass}
               />
+              {fieldErrors.last_name && (
+                <span className="text-xs text-red-600">{fieldErrors.last_name[0]}</span>
+              )}
             </div>
             <div className="flex flex-col gap-1.5 col-span-2">
               <label htmlFor="email" className={labelClass}>
@@ -97,6 +161,9 @@ function EmployeeFormPage() {
                 onChange={(e) => updateField('email', e.target.value)}
                 className={inputClass}
               />
+              {fieldErrors.email && (
+                <span className="text-xs text-red-600">{fieldErrors.email[0]}</span>
+              )}
             </div>
             <div className="flex flex-col gap-1.5">
               <label htmlFor="department" className={labelClass}>
@@ -115,6 +182,9 @@ function EmployeeFormPage() {
                   </option>
                 ))}
               </select>
+              {fieldErrors.department && (
+                <span className="text-xs text-red-600">{fieldErrors.department[0]}</span>
+              )}
             </div>
             <div className="flex flex-col gap-1.5">
               <label htmlFor="role" className={labelClass}>
@@ -133,6 +203,9 @@ function EmployeeFormPage() {
                   </option>
                 ))}
               </select>
+              {fieldErrors.role && (
+                <span className="text-xs text-red-600">{fieldErrors.role[0]}</span>
+              )}
             </div>
             <div className="flex flex-col gap-1.5">
               <label htmlFor="country" className={labelClass}>
@@ -151,6 +224,9 @@ function EmployeeFormPage() {
                   </option>
                 ))}
               </select>
+              {fieldErrors.country && (
+                <span className="text-xs text-red-600">{fieldErrors.country[0]}</span>
+              )}
             </div>
             <div className="flex flex-col gap-1.5">
               <label htmlFor="hire_date" className={labelClass}>
@@ -163,6 +239,9 @@ function EmployeeFormPage() {
                 onChange={(e) => updateField('hire_date', e.target.value)}
                 className={inputClass}
               />
+              {fieldErrors.hire_date && (
+                <span className="text-xs text-red-600">{fieldErrors.hire_date[0]}</span>
+              )}
             </div>
           </div>
 
@@ -184,6 +263,9 @@ function EmployeeFormPage() {
                     onChange={(e) => updateField('base', e.target.value)}
                     className={inputClass}
                   />
+                  {fieldErrors.base && (
+                    <span className="text-xs text-red-600">{fieldErrors.base[0]}</span>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="allowance" className={labelClass}>
@@ -197,6 +279,9 @@ function EmployeeFormPage() {
                     onChange={(e) => updateField('allowance', e.target.value)}
                     className={inputClass}
                   />
+                  {fieldErrors.allowance && (
+                    <span className="text-xs text-red-600">{fieldErrors.allowance[0]}</span>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="yearly_bonus" className={labelClass}>
@@ -210,6 +295,9 @@ function EmployeeFormPage() {
                     onChange={(e) => updateField('yearly_bonus', e.target.value)}
                     className={inputClass}
                   />
+                  {fieldErrors.yearly_bonus && (
+                    <span className="text-xs text-red-600">{fieldErrors.yearly_bonus[0]}</span>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="currency" className={labelClass}>
@@ -227,6 +315,9 @@ function EmployeeFormPage() {
                     <option value="GBP">GBP</option>
                     <option value="INR">INR</option>
                   </select>
+                  {fieldErrors.currency && (
+                    <span className="text-xs text-red-600">{fieldErrors.currency[0]}</span>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1.5 col-span-2">
                   <label htmlFor="salary_effective_from" className={labelClass}>
@@ -239,6 +330,11 @@ function EmployeeFormPage() {
                     onChange={(e) => updateField('salary_effective_from', e.target.value)}
                     className={inputClass}
                   />
+                  {fieldErrors.salary_effective_from && (
+                    <span className="text-xs text-red-600">
+                      {fieldErrors.salary_effective_from[0]}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -247,18 +343,19 @@ function EmployeeFormPage() {
           <div className="flex justify-end gap-2.5 mt-7 pt-5 border-t border-slate-200">
             <button
               type="button"
+              onClick={handleCancel}
               className="px-4 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors"
             >
               Cancel
             </button>
             <button
-              type="button"
+              type="submit"
               className="px-5 py-2.5 text-sm font-semibold text-white bg-blue-700 rounded-md hover:bg-blue-800 transition-colors"
             >
               {isEdit ? 'Save Changes' : 'Create Employee'}
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   )

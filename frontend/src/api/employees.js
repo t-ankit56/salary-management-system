@@ -4,6 +4,20 @@ export function getEmployee(id) {
   return apiFetch(`/api/employees/${id}/`)
 }
 
+export function createEmployee(fields) {
+  return apiFetch('/api/employees/', {
+    method: 'POST',
+    body: JSON.stringify(fields),
+  })
+}
+
+export function updateEmployee(id, fields) {
+  return apiFetch(`/api/employees/${id}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(fields),
+  })
+}
+
 export function deactivateEmployee(id, effective_date) {
   return apiFetch(`/api/employees/${id}/deactivate/`, {
     method: 'POST',
