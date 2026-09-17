@@ -798,3 +798,28 @@ own `{"reason": ["This field may not be blank."]}` 400 never got a chance to run
 client-side HTML validation.
 
 **Overrode:** nothing.
+
+
+## Frontend Step 10 — Deactivate and reactivate
+
+**Tool:** Claude Code (Sonnet) → `api/employees.js`, `hooks/useEmployee.js`,
+`components/modals/StatusChangeModal.jsx`, `pages/EmployeeDetailPage.jsx`,
+`pages/EmployeeDetailPage.test.jsx`
+
+Tested at the page level this time, not in isolation like Steps 8-9's modals — Step 10's three
+cases (which mode a given employee's status opens, the employee refetch after success, the
+banner error) all depend on `EmployeeDetailPage`'s own state (`employee.status`,
+`useEmployee`'s refetch), not just the modal's own form. Wrote all four tests first
+(mode/endpoint routing for both active and inactive employees, refetch-updates-badge, and the
+already-inactive banner) against the still-demo modal, confirmed real red, then implemented
+`deactivateEmployee`/`reactivateEmployee` in `api/employees.js`, added `refetch` to
+`useEmployee` (same `useCallback` pattern Step 8 added to `useSalaryHistory`), and turned
+`StatusChangeModal` into a controlled form.
+
+**Accepted:** the trigger button and the modal's confirm button share the same label
+("Deactivate"/"Reactivate" — the design's own choice, not something added this step), so once
+the modal is open there are two same-named buttons in the DOM. Disambiguated in tests with
+`getAllByRole(...).at(-1)` rather than adding an unrequested `role="dialog"` wrapper to the
+component just to make testing easier.
+
+**Overrode:** nothing.

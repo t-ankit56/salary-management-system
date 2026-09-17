@@ -527,3 +527,17 @@ trigger to a per-row Correct button, and caught a native `required` attribute bl
 server's 400 from ever surfacing.*
 
 > yes, commit both
+
+
+## Frontend Step 10 — Deactivate and reactivate
+
+**Claude Code (Sonnet)**
+
+> start step 10
+
+*Tested at the page level this time rather than in isolation, since Step 10's cases depend on
+the page's own employee state. Wrote all four tests against the still-demo modal, confirmed
+red, implemented `deactivateEmployee`/`reactivateEmployee`, added `refetch` to `useEmployee`,
+and turned `StatusChangeModal` into a controlled form.*
+
+> yes, commit both
