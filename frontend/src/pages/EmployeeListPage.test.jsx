@@ -171,3 +171,15 @@ it('changing page re-requests with the page param and does not follow the next U
     expect(url).not.toContain('example-host')
   })
 })
+
+it('truncates the page list instead of rendering a button per page at large counts', async () => {
+  setupFetch({ count: 10000, results: [employeeRow()] })
+  renderPage()
+
+  await waitFor(() => expect(screen.getByRole('button', { name: '400' })).toBeInTheDocument())
+
+  const numberedPageButtons = screen.getAllByRole('button', { name: /^\d+$/ })
+  expect(numberedPageButtons.length).toBeLessThan(10)
+  expect(screen.queryByRole('button', { name: '399' })).not.toBeInTheDocument()
+  expect(screen.getByText('…')).toBeInTheDocument()
+})
