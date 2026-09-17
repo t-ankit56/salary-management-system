@@ -8,6 +8,7 @@ import EmployeeFormPage from './pages/EmployeeFormPage'
 import ReportsPage from './pages/ReportsPage'
 import RosterUploadPage from './pages/RosterUploadPage'
 
+/** Root component: renders LoginPage with no session, else the nav bar and routed pages. */
 function App() {
   const { user, login, logout } = useAuth()
 
