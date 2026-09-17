@@ -5,6 +5,13 @@ function formatMoney(value) {
   return `$${value}`
 }
 
+function todayString() {
+  const now = new Date()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  return `${now.getFullYear()}-${month}-${day}`
+}
+
 function toRows(value) {
   if (typeof value === 'object' && value !== null) {
     return Object.entries(value).map(([label, amount]) => ({
@@ -25,7 +32,7 @@ const REPORT_DEFS = [
 ]
 
 function ReportsPage() {
-  const [asOf, setAsOf] = useState('')
+  const [asOf, setAsOf] = useState(todayString)
   const { reports, error } = useReports(asOf)
 
   return (
