@@ -495,3 +495,35 @@ design file wires it.*
 red, then wired the row's `onClick` to `useNavigate`.*
 
 > yes, commit both
+
+
+## Frontend Step 8 — Salary change modal
+
+**Claude Code (Sonnet)**
+
+> start step 8
+
+*Wrote `SalaryChangeModal.test.jsx` against the still-static modal (isolated component test,
+not page-level), confirmed real red, implemented `recordSalaryChange`, turned the modal into a
+controlled form, and added `refetch` to `useSalaryHistory`.*
+
+> yes, commit both
+
+
+## Frontend Step 9 — Salary correction modal
+
+**Claude Code (Sonnet)**
+
+> start step 9
+
+*Flagged the conflict between Step 9's "opened from a specific history row" and Step 6's fixed
+four-button design before writing anything.*
+
+> "Add a per-row trigger instead"
+
+*Wrote `SalaryCorrectionModal.test.jsx` against the still-static modal, confirmed red,
+implemented `correctSalaryPeriod`, wired the modal as a controlled form, moved the correction
+trigger to a per-row Correct button, and caught a native `required` attribute blocking the
+server's 400 from ever surfacing.*
+
+> yes, commit both

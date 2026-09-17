@@ -746,3 +746,55 @@ and a `/employees/:id` stub route, clicking a row, asserting the stub route rend
 the unwired table, confirmed real red, then wired the `onClick`.
 
 **Overrode:** nothing.
+
+
+## Frontend Step 8 — Salary change modal
+
+**Tool:** Claude Code (Sonnet) → `api/salary.js`, `hooks/useSalaryHistory.js`,
+`components/modals/SalaryChangeModal.jsx`, `components/modals/SalaryChangeModal.test.jsx`,
+`pages/EmployeeDetailPage.jsx`
+
+Tested the modal in isolation this time (`SalaryChangeModal.test.jsx`, not a page-level test)
+since Step 8's four cases are all about the modal's own form/error behaviour, not page wiring.
+Wrote it first against the still-static modal, confirmed real red, then implemented
+`recordSalaryChange` in `api/salary.js`, turned the modal into a controlled form with a
+`{detail}`-banner/field-error split, and added `refetch` to `useSalaryHistory` (extracted via
+`useCallback`) so the page can refresh history and close the modal together on success.
+
+**Conflict it surfaced:** the URL assertion in the first test used strict
+`.toBe('/api/employees/3/salary-changes/')`, which failed once run — this dev environment's
+`VITE_API_BASE_URL` isn't empty, so `apiFetch` prefixes every call with `http://localhost:8000`.
+Every other page test in the suite already uses `.toContain(...)` for exactly this reason;
+fixed the assertion to match the established pattern rather than changing `apiFetch`.
+
+**Overrode:** nothing.
+
+
+## Frontend Step 9 — Salary correction modal
+
+**Tool:** Claude Code (Sonnet) → `api/salary.js`, `components/modals/SalaryCorrectionModal.jsx`,
+`components/modals/SalaryCorrectionModal.test.jsx`, `pages/EmployeeDetailPage.jsx`
+
+**Conflict it surfaced:** flagged, before writing any code, that Step 9's text ("the modal is
+opened from a specific history row, so `salary_period` comes from that row's id") contradicts
+Step 6 and the design file, which both fix "Correct Salary" as one of four top-level buttons
+with no row selected.
+
+**My call:** chose a per-row trigger over deriving an implicit "current period" — removed the
+top-level Correct Salary button from the header (three remain: Change Salary,
+Deactivate/Reactivate, Edit) and added a Correct action to each salary history row instead, so
+`salary_period` in the request body is that row's own id.
+
+Wrote `SalaryCorrectionModal.test.jsx` first against the still-static modal, confirmed real
+red, then implemented `correctSalaryPeriod` in `api/salary.js` and turned the modal into a
+controlled form matching `SalaryChangeModal`'s error-handling pattern.
+
+**Conflict it surfaced:** the reason `<textarea>` still carried the native `required`
+attribute from Step 6's static scaffold. Once wired to a real submit handler, the browser's
+constraint validation silently blocked the submit event before it reached the handler, so the
+missing-reason test kept failing even after the rest of the wiring was correct — the server's
+own `{"reason": ["This field may not be blank."]}` 400 never got a chance to run. Dropped
+`required`, since the project's whole validation model relies on real API response shapes, not
+client-side HTML validation.
+
+**Overrode:** nothing.
