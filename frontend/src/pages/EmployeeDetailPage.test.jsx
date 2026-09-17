@@ -138,3 +138,120 @@ it('clicking a row with a nonzero correction count fetches and displays its corr
     fetchMock.mock.calls.some(([url]) => url.includes('/salary-periods/2/corrections/')),
   ).toBe(true)
 })
+
+it('when status is active, the button opens StatusChangeModal in deactivate mode and posts to the deactivate endpoint', async () => {
+  const fetchMock = vi.fn((url, options = {}) => {
+    if (options.method === 'POST' && url.includes('/deactivate/')) {
+      return Promise.resolve(jsonResponse(200))
+    }
+    if (url.includes('/salary-periods/')) {
+      return Promise.resolve(jsonResponse(200, HISTORY))
+    }
+    return Promise.resolve(jsonResponse(200, EMPLOYEE))
+  })
+  global.fetch = fetchMock
+  renderPage()
+
+  await waitFor(() => expect(screen.getByText('Jane Doe')).toBeInTheDocument())
+
+  fireEvent.click(screen.getByRole('button', { name: 'Deactivate' }))
+  expect(screen.getByText('Deactivate Employee')).toBeInTheDocument()
+
+  fireEvent.change(screen.getByLabelText('Effective Date'), { target: { value: '2024-01-01' } })
+  const confirmButtons = screen.getAllByRole('button', { name: 'Deactivate' })
+  fireEvent.click(confirmButtons[confirmButtons.length - 1])
+
+  await waitFor(() =>
+    expect(
+      fetchMock.mock.calls.some(
+        ([url, options]) => options.method === 'POST' && url.includes('/api/employees/3/deactivate/'),
+      ),
+    ).toBe(true),
+  )
+  const call = fetchMock.mock.calls.find(([url]) => url.includes('/deactivate/'))
+  expect(JSON.parse(call[1].body)).toEqual({ effective_date: '2024-01-01' })
+})
+
+it('when status is inactive, the button opens StatusChangeModal in reactivate mode and posts to the reactivate endpoint', async () => {
+  const inactiveEmployee = { ...EMPLOYEE, id: 5, status: 'inactive' }
+  const fetchMock = vi.fn((url, options = {}) => {
+    if (options.method === 'POST' && url.includes('/reactivate/')) {
+      return Promise.resolve(jsonResponse(200))
+    }
+    if (url.includes('/salary-periods/')) {
+      return Promise.resolve(jsonResponse(200, HISTORY))
+    }
+    return Promise.resolve(jsonResponse(200, inactiveEmployee))
+  })
+  global.fetch = fetchMock
+  renderPage('5')
+
+  await waitFor(() => expect(screen.getByText('Jane Doe')).toBeInTheDocument())
+
+  fireEvent.click(screen.getByRole('button', { name: 'Reactivate' }))
+  expect(screen.getByText('Reactivate Employee')).toBeInTheDocument()
+
+  fireEvent.change(screen.getByLabelText('Effective Date'), { target: { value: '2024-06-01' } })
+  const confirmButtons = screen.getAllByRole('button', { name: 'Reactivate' })
+  fireEvent.click(confirmButtons[confirmButtons.length - 1])
+
+  await waitFor(() =>
+    expect(
+      fetchMock.mock.calls.some(
+        ([url, options]) => options.method === 'POST' && url.includes('/api/employees/5/reactivate/'),
+      ),
+    ).toBe(true),
+  )
+})
+
+it('on success, the employee is refetched and the status badge/button label update', async () => {
+  let employeeGetCount = 0
+  const fetchMock = vi.fn((url, options = {}) => {
+    if (options.method === 'POST' && url.includes('/deactivate/')) {
+      return Promise.resolve(jsonResponse(200))
+    }
+    if (url.includes('/salary-periods/')) {
+      return Promise.resolve(jsonResponse(200, HISTORY))
+    }
+    employeeGetCount += 1
+    const status = employeeGetCount === 1 ? 'active' : 'inactive'
+    return Promise.resolve(jsonResponse(200, { ...EMPLOYEE, status }))
+  })
+  global.fetch = fetchMock
+  renderPage()
+
+  await waitFor(() => expect(screen.getByText('Active')).toBeInTheDocument())
+
+  fireEvent.click(screen.getByRole('button', { name: 'Deactivate' }))
+  fireEvent.change(screen.getByLabelText('Effective Date'), { target: { value: '2024-01-01' } })
+  const confirmButtons = screen.getAllByRole('button', { name: 'Deactivate' })
+  fireEvent.click(confirmButtons[confirmButtons.length - 1])
+
+  await waitFor(() => expect(screen.getByText('Inactive')).toBeInTheDocument())
+  expect(screen.getByRole('button', { name: 'Reactivate' })).toBeInTheDocument()
+})
+
+it('a {detail} 400 (e.g. already inactive) shows as a banner in the modal', async () => {
+  const fetchMock = vi.fn((url, options = {}) => {
+    if (options.method === 'POST' && url.includes('/deactivate/')) {
+      return Promise.resolve(jsonResponse(400, { detail: 'Employee is already inactive' }))
+    }
+    if (url.includes('/salary-periods/')) {
+      return Promise.resolve(jsonResponse(200, HISTORY))
+    }
+    return Promise.resolve(jsonResponse(200, EMPLOYEE))
+  })
+  global.fetch = fetchMock
+  renderPage()
+
+  await waitFor(() => expect(screen.getByText('Jane Doe')).toBeInTheDocument())
+
+  fireEvent.click(screen.getByRole('button', { name: 'Deactivate' }))
+  fireEvent.change(screen.getByLabelText('Effective Date'), { target: { value: '2024-01-01' } })
+  const confirmButtons = screen.getAllByRole('button', { name: 'Deactivate' })
+  fireEvent.click(confirmButtons[confirmButtons.length - 1])
+
+  await waitFor(() =>
+    expect(screen.getByRole('alert')).toHaveTextContent('Employee is already inactive'),
+  )
+})
