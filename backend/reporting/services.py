@@ -1,3 +1,12 @@
+"""Payroll and headcount reports, each resolved as of a given date (default: today).
+
+Reports never silently omit employees — a report that resolves salary
+(``total_payroll_cost`` and the ``average_*`` reports) reports an ``excluded_count`` for
+employed employees with no salary period covering ``as_of``, rather than a smaller number
+presented as complete. Headcount reports carry no salary lookup, so their exclusion count
+is always 0.
+"""
+
 import datetime
 from decimal import Decimal
 
@@ -9,6 +18,8 @@ from salary.models import SalaryPeriod
 
 
 class ReportDateTooEarly(ValueError):
+    """Raised when ``as_of`` predates the earliest salary data on record."""
+
     def __init__(self, earliest_date: datetime.date):
         self.earliest_date = earliest_date
         super().__init__(f"No salary data available before {earliest_date}")

@@ -1,3 +1,5 @@
+"""URL routes for reports."""
+
 from django.urls import path
 
 from reporting.views import ReportView

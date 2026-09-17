@@ -1,3 +1,5 @@
+"""API view exposing every report under one dynamic ``/reports/{name}/`` route."""
+
 from decimal import Decimal
 
 from django.db.models import DateField
@@ -34,6 +36,8 @@ def _stringify_decimals(value):
 
 
 class ReportView(APIView):
+    """Dispatches to one of ``REPORTS`` by name and stringifies money before responding."""
+
     def get(self, request, name):
         report_func = REPORTS.get(name)
         if report_func is None:
