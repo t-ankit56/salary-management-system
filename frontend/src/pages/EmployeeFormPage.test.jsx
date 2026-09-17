@@ -8,6 +8,7 @@ function renderCreatePage() {
     <MemoryRouter initialEntries={['/employees/new']}>
       <Routes>
         <Route path="/employees/new" element={<EmployeeFormPage />} />
+        <Route path="/employees" element={<div>Employee list stub</div>} />
         <Route path="/employees/:id" element={<div>Employee detail stub</div>} />
       </Routes>
     </MemoryRouter>,
@@ -251,4 +252,26 @@ it('on 200, navigates back to /employees/:id showing the updated fields', async 
   fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }))
 
   await waitFor(() => expect(screen.getByText('Employee detail stub')).toBeInTheDocument())
+})
+
+it('in create mode, a back link navigates to the employees list', async () => {
+  setupFetch(jsonResponse(201, { id: 9 }))
+  renderCreatePage()
+
+  await waitFor(() => expect(screen.getByLabelText('Department').children.length).toBeGreaterThan(1))
+
+  fireEvent.click(screen.getByRole('link', { name: /Back/ }))
+
+  expect(screen.getByText('Employee list stub')).toBeInTheDocument()
+})
+
+it('in edit mode, a back link navigates to the employee detail page', async () => {
+  setupEditFetch(jsonResponse(200, EMPLOYEE))
+  renderEditPage()
+
+  await waitFor(() => expect(screen.getByLabelText('First Name')).toHaveValue('Jane'))
+
+  fireEvent.click(screen.getByRole('link', { name: /Back/ }))
+
+  expect(screen.getByText('Employee detail stub')).toBeInTheDocument()
 })

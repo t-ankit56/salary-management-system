@@ -7,6 +7,7 @@ function renderPage(id = '3') {
   return render(
     <MemoryRouter initialEntries={[`/employees/${id}`]}>
       <Routes>
+        <Route path="/employees" element={<div>Employee list stub</div>} />
         <Route path="/employees/:id" element={<EmployeeDetailPage />} />
       </Routes>
     </MemoryRouter>,
@@ -254,4 +255,15 @@ it('a {detail} 400 (e.g. already inactive) shows as a banner in the modal', asyn
   await waitFor(() =>
     expect(screen.getByRole('alert')).toHaveTextContent('Employee is already inactive'),
   )
+})
+
+it('a back link navigates to the employees list', async () => {
+  setupFetch()
+  renderPage()
+
+  await waitFor(() => expect(screen.getByText('Jane Doe')).toBeInTheDocument())
+
+  fireEvent.click(screen.getByRole('link', { name: /Back/ }))
+
+  expect(screen.getByText('Employee list stub')).toBeInTheDocument()
 })
