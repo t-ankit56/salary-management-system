@@ -671,12 +671,12 @@ than pretending the order had been different.
 `components/modals/SalaryChangeModal.jsx`, `components/modals/SalaryCorrectionModal.jsx`,
 `components/modals/StatusChangeModal.jsx`
 
-**Conflict it surfaced:** the session was `/clear`ed mid-step, after the four `.dc.html`
-design files had already been read and two gaps against the doc identified but before their
-resolution was recorded anywhere. The pasted recap on resume cut off before showing what had
-actually been decided, so rather than guess or fabricate the prior answers, both gaps were
-re-derived from scratch by rereading the design files against the doc text and confirmed
-fresh with the user.
+**Conflict it surfaced:** I `/clear`ed the session mid-step, after the four `.dc.html` design
+files had already been read and two gaps against the doc identified but before I'd recorded
+the resolution anywhere. The recap I pasted back in on resume cut off before showing what I'd
+actually decided, so rather than have Claude guess or fabricate my prior answers, it re-derived
+both gaps from scratch by rereading the design files against the doc text, and I confirmed
+them fresh.
 
 **My call:**
 - `EmployeeDetailPage.dc.html`'s header shows only name, code, and status badge; the doc's
@@ -693,8 +693,56 @@ fresh with the user.
   navigate — only Edit changes the URL (`/employees/:id/edit`). Confirmed: Edit only; the rest
   stay buttons, matching what was already scaffolded.
 
-**Accepted:** reasoning that Edit is the only one of the four action buttons that navigates to
-a distinct route, and should be a `Link` rather than a `button`, was established independently
-from the doc's routing list before being asked — confirmed without change once raised.
+**Accepted:** Claude's own reasoning that Edit is the only one of the four action buttons that
+navigates to a distinct route, and should be a `Link` rather than a `button` — it worked this
+out from the doc's routing list before I asked, and I confirmed it without changes once
+raised.
+
+**Overrode:** nothing.
+
+
+## Frontend Step 7 — Employee detail: fetch employee and salary history
+
+**Tool:** Claude Code (Sonnet) → `api/employees.js`, `api/salary.js`, `hooks/useEmployee.js`,
+`hooks/useSalaryHistory.js`, `pages/EmployeeDetailPage.jsx`, `pages/EmployeeDetailPage.test.jsx`
+
+Wrote `EmployeeDetailPage.test.jsx` first against the still-static page (three cases:
+mount-time fetch of employee + salary history, newest-first ordering with correction counts,
+and clicking a nonzero-correction period fetching and showing its corrections log), ran it to
+confirm a real red — the fetch-call assertion failed since the static page never calls
+`fetch`, and the corrections-click assertion failed for lack of any interactive element.
+Implemented `getEmployee` on `api/employees.js`, a new `api/salary.js` (`getSalaryHistory`,
+`getCorrections`), and `useEmployee`/`useSalaryHistory` hooks fetching from the `:id` route
+param, then wired `EmployeeDetailPage` to them.
+
+**Accepted:**
+- The doc doesn't specify how a period's corrections log should display once fetched — added
+  a lightweight inline expanded row under the clicked period's `<tr>` (toggled via a
+  `Fragment` per row) rather than a separate modal, since Steps 8-10 already own the three
+  action modals and this is a read-only expansion, not another form.
+- Fixed a latent React key warning: the per-period `<>...</>` shorthand fragment in the
+  `.map()` needs an explicit key once it wraps two sibling `<tr>`s (the data row and its
+  conditional corrections row) — switched to `<Fragment key={period.id}>`.
+
+**My call:** none — no correction needed this step.
+
+**Overrode:** nothing.
+
+
+## Fix — Employee list row navigation to detail page
+
+**Tool:** Claude Code (Sonnet) → `pages/EmployeeListPage.jsx`, `pages/EmployeeListPage.test.jsx`
+
+**Conflict it surfaced:** I noticed, after using the live detail page built in Steps 6-7, that
+there was no way to reach `/employees/:id` from `/employees` except typing the URL directly,
+and asked Claude how to get there — this gap wasn't caught during Steps 4-7 despite neither
+the doc's Step 4 text nor `EmployeeListPage.dc.html`'s design script wiring row navigation.
+
+**My call:** whole `<tr>` clickable via `useNavigate`, rather than turning just the employee
+code/name cell into a `Link` — confirmed over the alternative when asked.
+
+**Accepted:** wrote the failing test first (a second render helper mounting both `/employees`
+and a `/employees/:id` stub route, clicking a row, asserting the stub route rendered) against
+the unwired table, confirmed real red, then wired the `onClick`.
 
 **Overrode:** nothing.

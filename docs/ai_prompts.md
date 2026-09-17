@@ -464,3 +464,34 @@ and asked which buttons were meant instead of guessing.*
 > just edit, the rest stay buttons
 
 > go ahead and commit
+
+
+## Frontend Step 7 — Employee detail: fetch employee and salary history
+
+**Claude Code (Sonnet)**
+
+> start step 7
+
+*Wrote `EmployeeDetailPage.test.jsx` against the still-static page, ran it, confirmed a real
+red (no fetch calls made, no interactive corrections control), implemented `getEmployee`,
+`api/salary.js`, and the `useEmployee`/`useSalaryHistory` hooks, wired the page to them, and
+fixed a latent React key warning on the per-period fragment along the way.*
+
+> yes, commit both
+
+
+## Fix — Employee list row navigation to detail page
+
+**Claude Code (Sonnet)**
+
+> employee detail page is live but how to go to that page frpm employees page?
+
+*Confirmed there was no way to reach the detail page from the list — neither the doc nor the
+design file wires it.*
+
+> "Whole row clickable (Recommended)"
+
+*Wrote the failing test first (row click against a stub `/employees/:id` route), confirmed
+red, then wired the row's `onClick` to `useNavigate`.*
+
+> yes, commit both
