@@ -7,9 +7,13 @@ from django.db import transaction
 from django.utils import timezone
 from faker import Faker
 
+from accounts.models import User
 from employees.models import Country, Department, Employee, Role
 from employees.services import create_employee, deactivate_employee
-from salary.services import record_salary_change
+from salary.models import SalaryPeriod
+from salary.services import correct_salary_period, record_salary_change
+
+DEMO_EMPLOYEE_COUNT = 4
 
 DEPARTMENTS = [
     "Engineering",
@@ -108,9 +112,103 @@ class Command(BaseCommand):
                         )
                         deactivate_employee(employee=employee, effective_date=deactivate_date)
 
+            _seed_demo_cases(departments[0], roles[0], countries[0], today)
+
         self.stdout.write(
             self.style.SUCCESS(
                 f"Seeded {len(departments)} departments, {len(roles)} roles, "
-                f"{len(countries)} countries, {count} employees."
+                f"{len(countries)} countries, {count} employees, "
+                f"{DEMO_EMPLOYEE_COUNT} demo cases (DEMO001-{DEMO_EMPLOYEE_COUNT:03d})."
             )
         )
+
+
+def _seed_demo_cases(department: Department, role: Role, country: Country, today) -> None:
+    demo_user, _ = User.objects.get_or_create(
+        email="seed-demo@example.com", defaults={"is_staff": False}
+    )
+    demo_user.set_unusable_password()
+    demo_user.save()
+
+    common = {"department": department, "role": role, "country": country}
+
+    full_history_hire_date = today - timedelta(days=365 * 5)
+    full_history = create_employee(
+        employee_code="DEMO001",
+        first_name="Demo",
+        last_name="FullHistory",
+        email="demo.fullhistory@example.com",
+        hire_date=full_history_hire_date,
+        base=Decimal(60000),
+        allowance=Decimal(2000),
+        yearly_bonus=Decimal(5000),
+        salary_effective_from=full_history_hire_date,
+        **common,
+    )
+    for years_ago in (4, 3, 2, 1):
+        record_salary_change(
+            employee=full_history,
+            base=Decimal(60000) + Decimal(years_ago) * Decimal(5000),
+            allowance=Decimal(2000),
+            yearly_bonus=Decimal(5000) + Decimal(years_ago) * Decimal(1000),
+            effective_from=today - timedelta(days=365 * years_ago),
+        )
+
+    future_raise_hire_date = today - timedelta(days=365 * 2)
+    future_raise = create_employee(
+        employee_code="DEMO002",
+        first_name="Demo",
+        last_name="FutureRaise",
+        email="demo.futureraise@example.com",
+        hire_date=future_raise_hire_date,
+        base=Decimal(70000),
+        allowance=Decimal(1500),
+        yearly_bonus=Decimal(4000),
+        salary_effective_from=future_raise_hire_date,
+        **common,
+    )
+    record_salary_change(
+        employee=future_raise,
+        base=Decimal(85000),
+        allowance=Decimal(2000),
+        yearly_bonus=Decimal(6000),
+        effective_from=today + timedelta(days=30),
+    )
+
+    corrected_hire_date = today - timedelta(days=365 * 3)
+    corrected = create_employee(
+        employee_code="DEMO003",
+        first_name="Demo",
+        last_name="Correction",
+        email="demo.correction@example.com",
+        hire_date=corrected_hire_date,
+        base=Decimal(50000),
+        allowance=Decimal(1000),
+        yearly_bonus=Decimal(3000),
+        salary_effective_from=corrected_hire_date,
+        **common,
+    )
+    open_period = SalaryPeriod.objects.get(employee=corrected, effective_to__isnull=True)
+    correct_salary_period(
+        salary_period=open_period,
+        base=Decimal(52000),
+        allowance=Decimal(1000),
+        yearly_bonus=Decimal(3000),
+        reason="Payroll entry error at hire — base salary was recorded incorrectly.",
+        created_by=demo_user,
+    )
+
+    deactivated_hire_date = today - timedelta(days=365 * 4)
+    deactivated = create_employee(
+        employee_code="DEMO004",
+        first_name="Demo",
+        last_name="Deactivated",
+        email="demo.deactivated@example.com",
+        hire_date=deactivated_hire_date,
+        base=Decimal(65000),
+        allowance=Decimal(1000),
+        yearly_bonus=Decimal(2000),
+        salary_effective_from=deactivated_hire_date,
+        **common,
+    )
+    deactivate_employee(employee=deactivated, effective_date=today - timedelta(days=90))
