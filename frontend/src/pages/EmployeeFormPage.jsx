@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { createEmployee, listCountries, listDepartments, listRoles } from '../api/employees'
+import {
+  createEmployee,
+  getEmployee,
+  listCountries,
+  listDepartments,
+  listRoles,
+  updateEmployee,
+} from '../api/employees'
 
 const initialForm = {
   employee_code: '',
@@ -42,6 +49,24 @@ function EmployeeFormPage() {
     listCountries().then(({ data }) => setCountries(data ?? []))
   }, [])
 
+  useEffect(() => {
+    if (!id) return
+    getEmployee(id).then(({ data }) => {
+      if (!data) return
+      setForm((f) => ({
+        ...f,
+        employee_code: data.employee_code,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email,
+        department: String(data.department),
+        role: String(data.role),
+        country: String(data.country),
+        hire_date: data.hire_date,
+      }))
+    })
+  }, [id])
+
   function updateField(key, value) {
     setForm((f) => ({ ...f, [key]: value }))
   }
@@ -56,6 +81,26 @@ function EmployeeFormPage() {
     setFieldErrors({})
 
     if (isEdit) {
+      const { status, data } = await updateEmployee(id, {
+        employee_code: form.employee_code,
+        first_name: form.first_name,
+        last_name: form.last_name,
+        email: form.email,
+        department: Number(form.department),
+        role: Number(form.role),
+        country: Number(form.country),
+        hire_date: form.hire_date,
+      })
+
+      if (status === 200) {
+        navigate(`/employees/${id}`)
+        return
+      }
+      if (data?.detail) {
+        setBannerError(data.detail)
+      } else {
+        setFieldErrors(data ?? {})
+      }
       return
     }
 
