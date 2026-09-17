@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { beforeEach, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import ReportsPage from './ReportsPage'
 
 function jsonResponse(status, body) {
@@ -48,6 +48,26 @@ function setupFetch({ failAll = false } = {}) {
 
 beforeEach(() => {
   vi.restoreAllMocks()
+})
+
+afterEach(() => {
+  vi.useRealTimers()
+})
+
+it('defaults the as-of date to today on mount and fetches reports for it', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(new Date('2026-09-16T10:00:00'))
+  const fetchMock = setupFetch()
+
+  render(<ReportsPage />)
+
+  expect(screen.getByLabelText('As Of')).toHaveValue('2026-09-16')
+
+  await waitFor(() =>
+    expect(
+      fetchMock.mock.calls.some(([url]) => url.includes('total_payroll_cost/?as_of=2026-09-16')),
+    ).toBe(true),
+  )
 })
 
 it('changing the as-of date re-requests all six report endpoints with that date', async () => {
