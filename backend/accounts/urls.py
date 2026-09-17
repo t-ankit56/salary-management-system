@@ -1,3 +1,5 @@
+"""URL routes for session authentication: login, current-user, logout."""
+
 from django.urls import path
 
 from accounts.views import LoginView, LogoutView, MeView

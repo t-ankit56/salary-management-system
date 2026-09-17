@@ -1,9 +1,13 @@
+"""The custom, email-only ``User`` model used for authentication (never linked to ``Employee``)."""
+
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 
 
 class UserManager(BaseUserManager):
+    """Manager for ``User``, since email replaces username as the identifying field."""
+
     def create_user(self, email: str, password: str | None = None, **extra):
         if not email:
             raise ValueError("Users must have an email address")
@@ -19,6 +23,8 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    """A login account (staff/admin user), distinct from an ``Employee`` payroll record."""
+
     email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

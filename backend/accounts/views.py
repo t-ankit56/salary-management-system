@@ -1,3 +1,5 @@
+"""Session-authentication views: login, current-user, logout."""
+
 from django.contrib.auth import login, logout
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -8,6 +10,8 @@ from accounts.services import authenticate_user
 
 
 class LoginView(APIView):
+    """Authenticates by email/password and starts a session."""
+
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -22,6 +26,8 @@ class LoginView(APIView):
 
 
 class MeView(APIView):
+    """Returns the current session's user, or 403 if there isn't one."""
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -29,6 +35,8 @@ class MeView(APIView):
 
 
 class LogoutView(APIView):
+    """Ends the current session."""
+
     def post(self, request):
         logout(request)
         return Response(status=status.HTTP_200_OK)

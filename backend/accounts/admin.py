@@ -1,3 +1,5 @@
+"""Django admin registration for the custom, email-only ``User`` model."""
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 
@@ -5,6 +7,8 @@ from accounts.models import User
 
 
 class UserAdmin(DjangoUserAdmin):
+    """Admin form for ``User``, overriding the default fieldsets since there is no username field."""
+
     ordering = ["email"]
     list_display = ["email", "is_staff", "is_active"]
     search_fields = ["email"]

@@ -1,3 +1,5 @@
+"""Authentication service layer, kept separate from views so it's testable without HTTP."""
+
 from django.contrib.auth import authenticate
 
 from accounts.models import User
