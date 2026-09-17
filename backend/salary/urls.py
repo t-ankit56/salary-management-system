@@ -1,3 +1,5 @@
+"""URL routes for salary changes, corrections, and history."""
+
 from django.urls import path
 
 from salary.views import (

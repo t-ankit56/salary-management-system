@@ -1,3 +1,5 @@
+"""Salary history: periods, and corrections applied to a period in place."""
+
 from django.contrib.postgres.constraints import ExclusionConstraint
 from django.contrib.postgres.fields import RangeOperators
 from django.db import models
@@ -9,6 +11,14 @@ from employees.models import Employee
 
 
 class SalaryPeriod(models.Model):
+    """A half-open ``[effective_from, effective_to)`` span of salary.
+
+    A raise (``record_salary_change``) closes the open period and opens a new one. A
+    correction (``correct_salary_period``) amends a period's amounts in place instead,
+    logged via ``SalaryCorrection`` — these are deliberately separate operations, not one
+    "edit salary" action.
+    """
+
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name="salary_periods")
 
     base = models.DecimalField(max_digits=12, decimal_places=2)
@@ -46,6 +56,8 @@ class SalaryPeriod(models.Model):
 
 
 class SalaryCorrection(models.Model):
+    """An audit log entry for one correction: previous and new amounts, reason, and author."""
+
     salary_period = models.ForeignKey(
         SalaryPeriod, on_delete=models.CASCADE, related_name="corrections"
     )

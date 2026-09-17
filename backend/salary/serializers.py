@@ -1,9 +1,13 @@
+"""Serializers for salary changes, history, and corrections."""
+
 from rest_framework import serializers
 
 from salary.models import SalaryCorrection, SalaryPeriod
 
 
 class SalaryChangeSerializer(serializers.Serializer):
+    """Input shape for recording a new salary period (a raise)."""
+
     base = serializers.DecimalField(max_digits=12, decimal_places=2)
     allowance = serializers.DecimalField(max_digits=12, decimal_places=2, default=0)
     yearly_bonus = serializers.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -12,6 +16,8 @@ class SalaryChangeSerializer(serializers.Serializer):
 
 
 class SalaryPeriodSerializer(serializers.ModelSerializer):
+    """Plain read shape for a single salary period."""
+
     class Meta:
         model = SalaryPeriod
         fields = [
@@ -27,6 +33,8 @@ class SalaryPeriodSerializer(serializers.ModelSerializer):
 
 
 class SalaryPeriodHistorySerializer(serializers.ModelSerializer):
+    """A salary period plus how many corrections have been applied to it."""
+
     correction_count = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -44,6 +52,8 @@ class SalaryPeriodHistorySerializer(serializers.ModelSerializer):
 
 
 class SalaryCorrectionInputSerializer(serializers.Serializer):
+    """Input shape for correcting an existing salary period's amounts in place."""
+
     salary_period = serializers.PrimaryKeyRelatedField(queryset=SalaryPeriod.objects.all())
     base = serializers.DecimalField(max_digits=12, decimal_places=2)
     allowance = serializers.DecimalField(max_digits=12, decimal_places=2)
@@ -52,6 +62,8 @@ class SalaryCorrectionInputSerializer(serializers.Serializer):
 
 
 class SalaryCorrectionSerializer(serializers.ModelSerializer):
+    """Read shape for a logged correction: previous/new amounts, reason, and author."""
+
     class Meta:
         model = SalaryCorrection
         fields = [

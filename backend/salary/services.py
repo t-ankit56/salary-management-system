@@ -1,3 +1,5 @@
+"""Salary domain operations: recording a change (a raise) and correcting a period in place."""
+
 import datetime
 from decimal import Decimal
 

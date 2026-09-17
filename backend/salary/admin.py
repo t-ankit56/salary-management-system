@@ -1,3 +1,5 @@
+"""Django admin registration for salary periods."""
+
 from django.contrib import admin
 
 from salary.models import SalaryPeriod

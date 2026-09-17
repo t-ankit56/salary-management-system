@@ -1,3 +1,5 @@
+"""API views for salary changes, corrections, and history."""
+
 from django.db import IntegrityError
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
@@ -20,6 +22,8 @@ from salary.services import correct_salary_period, record_salary_change
 
 
 class SalaryChangeView(APIView):
+    """Records a new salary period (a raise) effective from a given date."""
+
     def post(self, request, employee_id):
         employee = get_object_or_404(Employee, id=employee_id)
         serializer = SalaryChangeSerializer(data=request.data)
@@ -34,6 +38,8 @@ class SalaryChangeView(APIView):
 
 
 class SalaryCorrectionView(APIView):
+    """Corrects an existing salary period's amounts in place, logging the change."""
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request, employee_id):
@@ -50,6 +56,8 @@ class SalaryCorrectionView(APIView):
 
 
 class SalaryPeriodHistoryView(ListAPIView):
+    """Lists an employee's salary periods, newest first, with each period's correction count."""
+
     serializer_class = SalaryPeriodHistorySerializer
 
     def get_queryset(self):
@@ -61,6 +69,8 @@ class SalaryPeriodHistoryView(ListAPIView):
 
 
 class SalaryPeriodCorrectionsView(ListAPIView):
+    """Lists the corrections logged against a single salary period."""
+
     serializer_class = SalaryCorrectionSerializer
 
     def get_queryset(self):
