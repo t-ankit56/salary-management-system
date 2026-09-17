@@ -124,9 +124,6 @@ function SalaryChangeModal({ employeeId, onClose, onSuccess }) {
               >
                 <option value="">Select currency</option>
                 <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="GBP">GBP</option>
-                <option value="INR">INR</option>
               </select>
               {fieldErrors.currency && (
                 <span className="text-xs text-red-600">{fieldErrors.currency[0]}</span>
