@@ -1,3 +1,5 @@
+"""Employee domain operations: creation and activation status changes."""
+
 import datetime
 from decimal import Decimal
 

@@ -1,3 +1,5 @@
+"""API views for employees and their reference data."""
+
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
@@ -20,40 +22,56 @@ from employees.services import deactivate_employee, reactivate_employee
 
 
 class EmployeePagination(PageNumberPagination):
+    """Fixed page size for the employee list, matched by the frontend's own pagination."""
+
     page_size = 25
 
 
 class DepartmentListCreateView(ListCreateAPIView):
+    """List active departments, or create one."""
+
     queryset = Department.objects.filter(is_active=True)
     serializer_class = DepartmentSerializer
 
 
 class DepartmentDetailView(RetrieveUpdateAPIView):
+    """Retrieve or update a single department."""
+
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
 
 
 class RoleListCreateView(ListCreateAPIView):
+    """List active roles, or create one."""
+
     queryset = Role.objects.filter(is_active=True)
     serializer_class = RoleSerializer
 
 
 class RoleDetailView(RetrieveUpdateAPIView):
+    """Retrieve or update a single role."""
+
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
 
 
 class CountryListView(ListAPIView):
+    """List active countries."""
+
     queryset = Country.objects.filter(is_active=True)
     serializer_class = CountrySerializer
 
 
 class CountryDetailView(RetrieveUpdateAPIView):
+    """Retrieve or update a single country."""
+
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
 
 
 class EmployeeListCreateView(ListCreateAPIView):
+    """List employees (paginated, filterable, searchable), or create one with its opening salary."""
+
     queryset = Employee.objects.order_by("employee_code")
     serializer_class = EmployeeSerializer
     pagination_class = EmployeePagination
@@ -63,11 +81,15 @@ class EmployeeListCreateView(ListCreateAPIView):
 
 
 class EmployeeDetailView(RetrieveUpdateAPIView):
+    """Retrieve or update (demographics only — never salary) a single employee."""
+
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
 
 
 class EmployeeDeactivateView(APIView):
+    """Closes an employee's open employment period as of a given date."""
+
     def post(self, request, employee_id):
         employee = get_object_or_404(Employee, id=employee_id)
         serializer = StatusChangeSerializer(data=request.data)
@@ -82,6 +104,8 @@ class EmployeeDeactivateView(APIView):
 
 
 class EmployeeReactivateView(APIView):
+    """Opens a new employment period for an employee as of a given date."""
+
     def post(self, request, employee_id):
         employee = get_object_or_404(Employee, id=employee_id)
         serializer = StatusChangeSerializer(data=request.data)

@@ -1,3 +1,5 @@
+"""URL routes for employees and their reference data (departments, roles, countries)."""
+
 from django.urls import path
 
 from employees.views import (

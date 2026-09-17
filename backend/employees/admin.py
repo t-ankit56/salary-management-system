@@ -1,3 +1,5 @@
+"""Django admin registration for employees and their reference data."""
+
 from django.contrib import admin
 
 from employees.models import Country, Department, Employee, EmploymentPeriod, Role

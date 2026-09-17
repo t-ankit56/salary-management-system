@@ -1,3 +1,5 @@
+"""Employee records and their reference data (department/role/country) and employment periods."""
+
 from django.contrib.postgres.constraints import ExclusionConstraint
 from django.contrib.postgres.fields import RangeOperators
 from django.db import models
@@ -7,21 +9,29 @@ from common.constraints import DateRangeFunc
 
 
 class Department(models.Model):
+    """A department an employee can belong to."""
+
     name = models.CharField(max_length=100, unique=True)
     is_active = models.BooleanField(default=True)
 
 
 class Role(models.Model):
+    """A job role an employee can hold."""
+
     name = models.CharField(max_length=100, unique=True)
     is_active = models.BooleanField(default=True)
 
 
 class Country(models.Model):
+    """A country an employee can be based in."""
+
     name = models.CharField(max_length=100, unique=True)
     is_active = models.BooleanField(default=True)
 
 
 class Employee(models.Model):
+    """A payroll record. Never deleted — see ``EmploymentPeriod`` for active/inactive status."""
+
     employee_code = models.CharField(max_length=50, unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
@@ -38,6 +48,13 @@ class Employee(models.Model):
 
 
 class EmploymentPeriod(models.Model):
+    """A half-open ``[effective_from, effective_to)`` span of active employment.
+
+    An employee is active as of a date iff an ``EmploymentPeriod`` covers it. Deactivating
+    closes the open period; reactivating opens a new one — the employee row itself is never
+    touched or deleted.
+    """
+
     employee = models.ForeignKey(
         Employee, on_delete=models.CASCADE, related_name="employment_periods"
     )

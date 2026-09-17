@@ -1,3 +1,5 @@
+"""Seeds reference data, random employees, and deterministic demo cases (DEMO001-004)."""
+
 import random
 from datetime import timedelta
 from decimal import Decimal
@@ -47,6 +49,8 @@ MIN_PERIOD_GAP_DAYS = 180
 
 
 class Command(BaseCommand):
+    """``manage.py seed_data --count N``: wipes and reseeds employees and reference data."""
+
     help = "Seed reference data and employees with salary history for local development."
 
     def add_arguments(self, parser):

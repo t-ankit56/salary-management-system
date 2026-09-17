@@ -1,3 +1,5 @@
+"""Serializers for employees and their reference data."""
+
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -7,24 +9,32 @@ from employees.services import create_employee
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
+    """Read/write serializer for ``Department``."""
+
     class Meta:
         model = Department
         fields = ["id", "name", "is_active"]
 
 
 class RoleSerializer(serializers.ModelSerializer):
+    """Read/write serializer for ``Role``."""
+
     class Meta:
         model = Role
         fields = ["id", "name", "is_active"]
 
 
 class CountrySerializer(serializers.ModelSerializer):
+    """Read/write serializer for ``Country``."""
+
     class Meta:
         model = Country
         fields = ["id", "name", "is_active"]
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
+    """Employee read/write shape, plus the write-only opening-salary fields used on create."""
+
     base = serializers.DecimalField(max_digits=12, decimal_places=2, write_only=True)
     allowance = serializers.DecimalField(
         max_digits=12, decimal_places=2, write_only=True, default=0
@@ -74,4 +84,6 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
 
 class StatusChangeSerializer(serializers.Serializer):
+    """Shared payload shape for both deactivate and reactivate requests."""
+
     effective_date = serializers.DateField()
