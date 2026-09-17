@@ -585,3 +585,40 @@ the same '73000.00' value, so `getByText` matched multiple elements) before it w
 for a real bug.*
 
 > log this in the ai workflow log
+
+
+## Bug fix — CSRF 403 on every write endpoint, misreported as a logout
+
+**Claude Code (Sonnet)**
+
+> check if backend server is working
+
+*Started checking docker/endpoint health; interrupted mid-check.*
+
+> create employee functionality is logging me out
+
+*Launched an investigation agent into the frontend's central 403 handler, the create-employee
+request, and the backend's CSRF/CORS settings.*
+
+> it is giving csrf error
+
+*While the investigation was still running, confirmed the CSRF angle. Entered plan mode once
+the agent's findings came back (missing `CSRF_TRUSTED_ORIGINS`), confirmed the root cause by
+reading `settings.py` and both `.env` files directly, and asked whether to add a regression
+test alongside the settings fix.*
+
+> add one. do this in a red test + fix cycle
+
+*Wrote the plan, got approval.*
+
+> I think so it is not logging out but redirecting to login screen because of error in api
+
+*Noted this matched the plan's own explanation already and proceeded unchanged. Wrote the red
+test (`Client(enforce_csrf_checks=True)`, real session + cross-origin Origin header), confirmed
+403, added `CSRF_TRUSTED_ORIGINS` to `settings.py` and both env files, discovered a plain
+`docker compose restart` doesn't reread `env_file` and force-recreated the container instead,
+reran the full suite (104 passed) plus ruff, then verified end-to-end against the live
+containers with a real login + cross-origin create (misfired once on guessed reference-data
+ids, then confirmed 201 with the real ones), cleaned up the throwaway test data.*
+
+> log this in the ai workflow log

@@ -933,3 +933,53 @@ match) was ambiguous by construction. Not an implementation bug; switched the as
   `Number()`/`parseFloat`, per the doc's explicit guard against a float regression.
 
 **Overrode:** nothing.
+
+
+## Bug fix — CSRF 403 on every write endpoint, misreported as a logout
+
+**Tool:** Claude Code (Sonnet) → `backend/config/settings.py`, `.env`, `.env.example`,
+`backend/employees/tests/test_views.py`
+
+I hit this myself using the live app: submitting "Create Employee" bounced me back to the
+login screen. Told Claude to check whether the backend was even up first; while it was doing
+that I interrupted with the actual symptom instead. It ran an investigation before proposing
+anything, then I confirmed "it is giving csrf error" and, once it had traced the mechanism,
+clarified further that it's not a real logout — the frontend's central 403 handler just
+redirects to `/login` on any 403, so a CSRF failure looks identical to a session expiry from
+the UI.
+
+**Conflict it surfaced:** every one of the 103 existing backend view tests authenticates with
+DRF's `force_authenticate`, which injects `request.user` directly and never goes through
+`SessionAuthentication` — so `enforce_csrf()`, the exact code path that was failing, had never
+once been exercised by the suite. This wasn't an employee-creation bug specifically: Django's
+`CSRF_TRUSTED_ORIGINS` was never set at all, so `CsrfViewMiddleware` rejects the Origin header
+on *any* authenticated write from the Vite dev server (`localhost:5173`) to Django
+(`localhost:8000`) — salary change, correction, deactivate/reactivate, and employee edit were
+all equally exposed; Create Employee was just the first one actually driven through the live
+browser.
+
+**My call:** asked whether to fix the settings alone or add a regression test; the reply was
+"add one. do this in a red test + fix cycle" — so the test came first, confirmed against a
+real `403` before touching `settings.py`.
+
+**Accepted:**
+- `CSRF_TRUSTED_ORIGINS` mirrors the existing `CORS_ALLOWED_ORIGINS` pattern exactly
+  (env-var-driven, empty by default since production serves same-origin behind nginx) —
+  Claude's own design choice, unprompted, no correction needed.
+- The regression test lives in `employees/tests/test_views.py` next to the existing
+  create-employee test rather than a new file, since nothing in this codebase has a
+  settings/config-level test location to follow instead.
+
+**Conflict it surfaced (2):** `docker compose restart web` did not actually pick up the new
+`CSRF_TRUSTED_ORIGINS` value — `env_file` variables are baked into a container at creation,
+not re-read on a plain restart. Caught by checking `printenv` and `settings.CSRF_TRUSTED_ORIGINS`
+inside the container rather than trusting the restart and rerunning tests blindly; the test
+was still red until switching to `docker compose up -d --force-recreate web`.
+
+**Conflict it surfaced (3):** the first live end-to-end verification curl used guessed
+department/role/country ids (`1,1,1`) and got a `400`, not the `403` the fix was meant to
+remove — momentarily ambiguous whether the fix had actually worked. Looked up the real
+reference-data ids from the running database instead of guessing, reran, got `201`. Not a
+real regression, a self-inflicted mistake in the verification script.
+
+**Overrode:** nothing.
