@@ -20,6 +20,11 @@ CORS_ALLOWED_ORIGINS = [
 ]
 CORS_ALLOW_CREDENTIALS = True
 
+# Separate from CORS_ALLOWED_ORIGINS: this is what CsrfViewMiddleware checks the Origin header against.
+CSRF_TRUSTED_ORIGINS = [
+    origin for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if origin
+]
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
