@@ -888,3 +888,48 @@ salary fields for free — the Initial Salary section is already hidden in edit 
 11, so there was nothing salary-shaped in `form` state to accidentally send.
 
 **Overrode:** nothing.
+
+
+## Frontend Step 14 — Reports: static layout
+
+**Tool:** Claude Code (Sonnet) → `pages/ReportsPage.jsx`
+
+Read `ReportsPage.dc.html`, translated it to the same design-token pattern as every other
+page — as-of date input, six report cards in a 3-column grid, each with a static rows table
+and an excluded-count line, plus a shared (always-hidden) too-early-date banner. No tests,
+matching the no-test precedent for static-layout steps (2, 4, 6, 11).
+
+**Overrode:** nothing.
+
+
+## Frontend Step 15 — Reports: wire to API
+
+**Tool:** Claude Code (Sonnet) → `api/reports.js`, `hooks/useReports.js`, `pages/ReportsPage.jsx`,
+`pages/ReportsPage.test.jsx`
+
+Wrote all four tests first against the still-static page, confirmed real red (hardcoded
+excluded counts, no fetch calls at all), then implemented `getReport` and a `useReports` hook
+firing all six report requests whenever `as_of` changes.
+
+**Conflict it surfaced:** the first run of the new money-string test failed with "Found
+multiple elements with the text: $73000.00" — my own test fixture reused `'73000.00'` as the
+value for three different reports (`total_payroll_cost`, `average_salary_by_department`, and
+`average_salary_by_country`), so the assertion's `getByText` (which requires exactly one
+match) was ambiguous by construction. Not an implementation bug; switched the assertion to
+`getAllByText(...).length > 0`.
+
+**Accepted:**
+- No default `as_of` on mount — the hook only fires once the user actually picks a date. The
+  doc's own wording ("fires all six requests whenever `as_of` changes") never claims a
+  mount-time fetch, and defaulting to "today" would have made every test depend on the real
+  wall-clock date instead of the suite's existing fixed-date fixtures.
+- Per-report failure handling: a failing report's entry is deleted from `reports` state
+  (rather than left showing its last-successful value) so a subsequent too-early date can't
+  leave stale numbers on screen, while the error banner itself stays singular and shared —
+  matching the doc's explicit "handled once, not per report" instruction for the banner, but
+  still satisfying "does not render stale/partial data for that report" at the data level.
+  Reasoned through directly from those two doc sentences without needing to ask.
+- Money values render via plain string concatenation (`` `$${value}` ``), never
+  `Number()`/`parseFloat`, per the doc's explicit guard against a float regression.
+
+**Overrode:** nothing.

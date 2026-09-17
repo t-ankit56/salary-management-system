@@ -560,3 +560,28 @@ went straight through after showing each proposed message, rather than waiting f
 explicit go-ahead each time.
 
 > log this in the ai workflow log
+
+
+## Frontend Step 14 — Reports: static layout
+
+**Claude Code (Sonnet)**
+
+> start step 14 html is in design
+
+*Read `ReportsPage.dc.html`, scaffolded the static reports page (date input, six report
+cards, shared error banner), verified and committed. No tests, matching the static-layout
+precedent.*
+
+
+## Frontend Step 15 — Reports: wire to API
+
+**Claude Code (Sonnet)**
+
+> start step 15
+
+*Wrote all four tests against the still-static page, confirmed red, implemented `getReport`
+and `useReports`. Caught and fixed an ambiguous test assertion (three fixture reports reused
+the same '73000.00' value, so `getByText` matched multiple elements) before it was mistaken
+for a real bug.*
+
+> log this in the ai workflow log
