@@ -1006,3 +1006,85 @@ page — confirmed real red, then added `NavBar` (`react-router`'s `NavLink` for
 styling) rendered above `<Routes>` whenever a user is authenticated.
 
 **Overrode:** nothing.
+
+
+## Fix — ACME Corporation logo on every page and the login screen
+
+**Tool:** Claude Code (Sonnet) → `components/NavBar.jsx`, `pages/LoginPage.jsx`,
+`src/assets/acme-logo.webp`
+
+I'd dropped the logo file into `frontend/design/` myself and gave exact placement: top-left
+on every page, centered on the login screen.
+
+**Accepted:** copied the file into `src/assets/` for bundling rather than referencing
+`frontend/design/` directly, matching how every other asset in the app is imported. Purely
+presentational — no behavior changed, so no test.
+
+**Overrode:** nothing.
+
+
+## Fix — Back links on employee detail and form pages
+
+**Tool:** Claude Code (Sonnet) → `pages/EmployeeDetailPage.jsx`, `pages/EmployeeFormPage.jsx`,
+their test files
+
+Asked "give an option of back button in every relevant page." Rather than guess which pages
+counted as relevant, laid out the app's drill-down hierarchy (Employees list → Detail → Edit;
+Employees list → New) and asked which pages should actually get one.
+
+**My call:** Detail plus both Employee Form modes — Employees list and Reports stay as-is,
+since they're top-level and already reachable via the nav bar.
+
+**Accepted:** wrote the three back-link tests first (Detail → list; Form/create → list;
+Form/edit → that employee's detail page) against pages with no back link, confirmed real red,
+then added `Link`s. The form page's back link target reuses the exact same logic as its
+existing Cancel button rather than duplicating it.
+
+**Overrode:** nothing.
+
+
+## Fix — Reports page defaults as-of to today
+
+**Tool:** Claude Code (Sonnet) → `pages/ReportsPage.jsx`, `pages/ReportsPage.test.jsx`
+
+Asked "when clicking on report page todays date should automatically be selected." This
+directly reverses my own Step 15 call — deliberately *not* defaulting `as_of` on mount, to
+avoid every test depending on the real wall-clock date. That reasoning doesn't disappear here,
+so the test needed a different answer, not dropping the constraint: faked only `Date` via
+`vi.useFakeTimers({ toFake: ['Date'] })` (leaving `setTimeout` etc. real so `waitFor`'s
+internal polling still works), set a fixed system time, and asserted the date input shows that
+exact value. Confirmed red against the still-empty-by-default page, then made `useState`'s
+initializer compute today's *local* date (not `toISOString`, which is UTC and can read a day
+off near midnight) instead of `''`.
+
+**My call:** default `as_of` to today on mount, overriding the earlier no-default design.
+
+**Overrode:** nothing.
+
+
+## Fix — Clear Filters on the employee list
+
+**Tool:** Claude Code (Sonnet) → `hooks/useEmployees.js`, `pages/EmployeeListPage.jsx`, its
+test file
+
+Asked "give an option to clear all the filters selected." Wrote the test first (set status,
+department and search; click Clear Filters; confirm the next request drops all three params
+and every input reads back empty) against a page with no such button, confirmed real red, then
+added `clearFilters` to `useEmployees` — resets `filters` straight back to the hook's existing
+`initialFilters` constant rather than a second hand-written reset object — wired to a plain
+text button next to the Status select.
+
+**Overrode:** nothing.
+
+
+## Fix — ACME logo as the favicon
+
+**Tool:** Claude Code (Sonnet) → `index.html`, `public/favicon.webp`
+
+Asked "use acme logo as favicon."
+
+**Accepted:** deleted the now-unreferenced `public/favicon.svg` rather than leaving it behind
+— checked first that nothing else in the app pointed at it. Left `public/icons.svg` alone;
+it's a separate, already-unused sprite sheet unrelated to this change.
+
+**Overrode:** nothing.

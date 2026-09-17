@@ -642,3 +642,72 @@ real button for the first time.*
 > yes, commit both
 
 > log this in the ai workflow log
+
+
+## Fix — ACME Corporation logo on every page and the login screen
+
+**Claude Code (Sonnet)**
+
+> I have put a logo of acme corporation in design. please put it on the left top corner of all pages and also in the centre of login page
+
+*Copied the logo into src/assets/, added it to NavBar and centered above LoginPage's title.
+No behavior change, no test.*
+
+> yes, commit it
+
+
+## Fix — Back links on employee detail and form pages
+
+**Claude Code (Sonnet)**
+
+> give an option of back button in every relevant page
+
+*Laid out the app's page hierarchy and asked which pages should get one.*
+
+> "Detail + both form modes (Recommended)"
+
+*Wrote the three back-link tests first against pages with none, confirmed red, added Links —
+the form page's reuses its existing Cancel button's target logic.*
+
+> yes, commit both
+
+
+## Fix — Reports page defaults as-of to today
+
+**Claude Code (Sonnet)**
+
+> when clicking on report page todays date should automatically be selected
+
+*Noted this reverses Step 15's deliberate no-default choice, kept that choice's underlying
+reasoning (don't let tests depend on the real wall-clock date) by faking only Date in the new
+test, confirmed red, then defaulted the date input's useState initializer to today's local
+date.*
+
+> yes, commit both
+
+
+## Fix — Clear Filters on the employee list
+
+**Claude Code (Sonnet)**
+
+> give an option to clear all the filters selected
+
+*Wrote the test first (set several filters, click Clear Filters, confirm they reset and the
+next request drops them), confirmed red, added clearFilters to useEmployees and a button next
+to Status.*
+
+> yes, commit both
+
+
+## Fix — ACME logo as the favicon
+
+**Claude Code (Sonnet)**
+
+> use acme logo as favicon
+
+*Replaced public/favicon.svg with the logo (checked first that nothing else referenced the
+old file), updated index.html's icon link.*
+
+> yes, commit it
+
+> yes, log it
