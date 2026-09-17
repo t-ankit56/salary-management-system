@@ -10,6 +10,11 @@ export const REPORT_NAMES = [
   'average_bonus_by_department',
 ]
 
+/**
+ * Fetches all six reports for a given as-of date. A failing report is dropped from
+ * `reports` (never left showing a stale value); the too-early-date error is shared and
+ * handled once, not per report.
+ */
 export function useReports(asOf) {
   const [reports, setReports] = useState({})
   const [error, setError] = useState(null)

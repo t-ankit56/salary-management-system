@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { apiFetch } from '../api/client'
 
+/**
+ * Session state: current user (checked on mount via /api/auth/me/), login, logout.
+ * Also listens for the central `auth:unauthorized` event so any 403 anywhere in the app
+ * logs the user out.
+ */
 export function useAuth() {
   const [user, setUser] = useState(null)
 

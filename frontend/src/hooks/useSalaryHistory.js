@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getCorrections, getSalaryHistory } from '../api/salary'
 
+/**
+ * Salary periods for an employee, plus on-demand corrections for whichever period is
+ * currently expanded.
+ */
 export function useSalaryHistory(employeeId) {
   const [history, setHistory] = useState([])
   const [expandedPeriodId, setExpandedPeriodId] = useState(null)

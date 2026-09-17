@@ -10,6 +10,10 @@ const initialFilters = {
   page: 1,
 }
 
+/**
+ * Employee list with filters, search, and pagination. Refetches whenever `filters`
+ * changes; changing any filter other than the page resets to page 1.
+ */
 export function useEmployees() {
   const [filters, setFilters] = useState(initialFilters)
   const [employees, setEmployees] = useState([])
