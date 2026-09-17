@@ -1088,3 +1088,71 @@ Asked "use acme logo as favicon."
 it's a separate, already-unused sprite sheet unrelated to this change.
 
 **Overrode:** nothing.
+
+
+## Deployment — Azure VM production setup
+
+**Tool:** Claude Code (Sonnet) → `docker-compose.prod.yml`, `deploy/nginx.conf`,
+`backend/config/settings.py`, `backend/employees/management/commands/seed_data.py`,
+`docs/deployment_guide.md`, `README.md`, plus live setup on the Azure VM over SSH
+
+Asked Claude to deploy the app to an Azure VM in production. It inspected the target VM
+directly over SSH first (no `az` access to that subscription from this machine) rather than
+guessing at its state, then asked a round of scoping questions before writing anything:
+whether to provision a VM or use an existing one, whether I had a domain, what to name things.
+I'd already provisioned the VM and had a domain (the Azure-assigned `*.cloudapp.azure.com`
+FQDN), so I picked those and gave it the IP, domain, and VM name myself.
+
+Partway through its own read-only SSH recon, I rejected one tool call without explanation and
+asked what it was doing. It gave a clear, specific account — checking `ufw` status, core
+count, and whether the domain actually resolved to the VM, all read-only, same category as the
+earlier `os-release`/`free`/`df` checks — rather than just reasserting the same call, so I let
+it continue.
+
+**Overrode:** its first plan assumed the GitHub repo was public and could be cloned onto the
+VM over plain HTTPS. It's private — I never said otherwise and it never asked. Corrected this
+along with two other plan gaps in one message: seed 10,000 employees in production, not the
+seed command's own 200 default, and add cases I can actually point at to demo the features I
+built, not just random data.
+
+**My calls:**
+- Demo data, not just scale — asked for deterministic cases I could use to show off the
+  domain rules (change vs. correction, current-salary-by-date vs. latest-record, deactivation
+  instead of deletion), not left as an open-ended "more realistic seed data" request.
+- Handle the private-repo clone myself rather than hand Claude a credential — it clones to the
+  VM under my own GitHub auth, Claude does everything else over SSH once the code is there.
+- Confirmed ports 80/443 were already open on the NSG myself, via the Azure Portal, since
+  Claude has no `az` access to that subscription to check or open them.
+
+**Accepted:**
+- Four fixed demo employees (`DEMO001`-`DEMO004`: full multi-year salary history, a raise
+  effective in the future so current salary and the latest record disagree, a correction
+  applied to a past period, and a deactivation), built from the existing tested services
+  (`create_employee`, `record_salary_change`, `correct_salary_period`, `deactivate_employee`)
+  rather than new application logic, attributed to a non-login `seed-demo@example.com` system
+  user. Built test-first per the project's own working agreement — failing test committed,
+  confirmed red for the right reason (an import error, since the constant didn't exist yet),
+  then implemented and confirmed green, including the existing zero-exclusion report test,
+  which stays true by construction: the future raise doesn't close today's coverage, the
+  correction only rewrites values in place, and deactivation removes an employee from both
+  sides of the exclusion count equally.
+- A standalone `docker-compose.prod.yml` rather than a compose override merged with the dev
+  file — Compose's list-merge rules don't replace `volumes`/`ports` on override, they
+  concatenate, so an override file couldn't actually drop the dev bind-mount or Postgres's
+  public port without relying on a newer `!reset` YAML tag.
+- nginx running directly on the host rather than containerized, for a 1-vCPU/2GB box and for
+  certbot's renewal hooks to work with the standard tooling.
+- Building the frontend in a throwaway `node:20` container instead of installing Node
+  permanently on the VM.
+- Generating `DJANGO_SECRET_KEY` and the database password fresh on the VM itself (`.env`,
+  mode 600, never committed) rather than reusing anything from local dev.
+- Used my own Azure account email for the Let's Encrypt registration without asking first, but
+  flagged it afterward rather than leaving it silent.
+
+**Conflict it surfaced:** neither cloning the repo nor pushing commits back to it works from
+Claude's own environment — no GitHub credentials for a private repo. This came up twice: once
+before the infra commits could reach the VM at all, which is why I cloned it myself, and again
+for the final README commit, which sat local and unpushed until I pushed it.
+
+**Noted for later:** `/opt/salary-manager` is created and owned by `root` by default — cloning
+into it needs `chown` on that one subdirectory first, not `/opt` itself.
