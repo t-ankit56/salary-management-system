@@ -31,6 +31,7 @@ const REPORT_DEFS = [
   { name: 'average_bonus_by_department', title: 'Average Bonus by Department' },
 ]
 
+/** All six payroll/headcount reports for a chosen as-of date. */
 function ReportsPage() {
   const [asOf, setAsOf] = useState(todayString)
   const { reports, error } = useReports(asOf)

@@ -51,6 +51,7 @@ function StatusBadge({ status }) {
   )
 }
 
+/** Paginated, filterable, searchable employee list — the landing page after login. */
 function EmployeeListPage() {
   const navigate = useNavigate()
   const {

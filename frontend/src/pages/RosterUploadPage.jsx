@@ -22,6 +22,7 @@ function UploadIcon() {
   )
 }
 
+/** Bulk-upload an Excel roster; all-or-nothing, with a Row/Error table on failure. */
 function RosterUploadPage() {
   const [file, setFile] = useState(null)
   const [uploading, setUploading] = useState(false)

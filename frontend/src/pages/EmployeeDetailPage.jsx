@@ -19,6 +19,7 @@ function StatusBadge({ status }) {
   )
 }
 
+/** Employee profile, salary history, and the change/correction/status modals. */
 function EmployeeDetailPage() {
   const { id } = useParams()
   const [openModal, setOpenModal] = useState(null)
