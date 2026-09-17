@@ -6,6 +6,7 @@ import EmployeeListPage from './pages/EmployeeListPage'
 import EmployeeDetailPage from './pages/EmployeeDetailPage'
 import EmployeeFormPage from './pages/EmployeeFormPage'
 import ReportsPage from './pages/ReportsPage'
+import RosterUploadPage from './pages/RosterUploadPage'
 
 function App() {
   const { user, login, logout } = useAuth()
@@ -25,6 +26,7 @@ function App() {
         <Route path="/employees/:id" element={<EmployeeDetailPage />} />
         <Route path="/employees/:id/edit" element={<EmployeeFormPage />} />
         <Route path="/reports" element={<ReportsPage />} />
+        <Route path="/roster-upload" element={<RosterUploadPage />} />
       </Routes>
     </>
   )

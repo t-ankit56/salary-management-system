@@ -17,6 +17,9 @@ function NavBar({ onLogout }) {
       <NavLink to="/reports" className={linkClass}>
         Reports
       </NavLink>
+      <NavLink to="/roster-upload" className={linkClass}>
+        Upload Roster
+      </NavLink>
       <button
         type="button"
         onClick={onLogout}
