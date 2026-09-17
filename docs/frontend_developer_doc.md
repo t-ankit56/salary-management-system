@@ -43,6 +43,7 @@ frontend/
       employees.js        employee + reference-data endpoint calls
       salary.js            salary change / correction / history endpoint calls
       reports.js            report endpoint calls
+      imports.js             roster upload endpoint call
     hooks/
       useAuth.js           session state: current user, login, logout, mount-time check
       useEmployees.js      list with filters, search, pagination
@@ -60,6 +61,7 @@ frontend/
       EmployeeDetailPage.jsx
       EmployeeFormPage.jsx         create and edit
       ReportsPage.jsx
+      RosterUploadPage.jsx
     App.jsx
     main.jsx
   index.html
@@ -620,7 +622,50 @@ per-report accessors.
 
 ---
 
-# Step 16 — Deployment
+# Step 16 — Roster upload
+
+Added after initial launch — the backend's `POST /api/imports/roster/` existed from the
+start (backend Step 16) but was deliberately left unreachable from the frontend, since it
+wasn't needed until a real bulk-import workflow was requested. Built the same way as every
+other page: a Claude Design mockup, a static layout commit, then a wire-to-API commit.
+
+Built in Claude Design, scaffolded as `RosterUploadPage.jsx`: a drop zone with a file-picker
+fallback (`.xlsx` only) and an Upload button, disabled until a file is chosen. Reachable from
+a new "Upload Roster" link in the nav bar, routed at `/roster-upload`.
+
+**`api/imports.js`**: `uploadRoster(file)`, `POST`ing a `FormData` body (field name `file`) to
+`/api/imports/roster/`. This is the app's first multipart request — every other write sends
+JSON — which surfaced a real bug in `api/client.js`: it unconditionally set
+`Content-Type: application/json` whenever a body was present, which breaks a multipart
+request (the browser must set its own `Content-Type` with the boundary). Fixed test-first:
+`apiFetch` now skips that header when the body is a `FormData` instance.
+
+**Real responses:**
+
+```
+POST /api/imports/roster/  (multipart, field "file")
+201  {"created": 12, "updated": 3}
+
+400  {"errors": [{"row": 4, "error": "email is required"}, {"row": 7, "error": "duplicate employee_code in file"}]}
+```
+
+All-or-nothing: a 400 means nothing was saved, and every failing row is listed, not just the
+first. Rendered as a Row/Error table, not the generic single-message banner other forms use
+for a `{detail}` response — this endpoint never returns `{detail}` on validation failure, only
+`{errors: [...]}}`.
+
+**Tests:**
+- the Upload button stays disabled until a file is chosen
+- submitting posts the file as `multipart/form-data` to `POST /api/imports/roster/`
+- a 201 shows the created/updated counts and a link back to the employee list
+- a 400 with row errors renders the Row/Error table, not a generic banner
+
+**Commit:** `test: roster upload page should wire to the API (red)` →
+`feat: wire the roster upload page to POST /api/imports/roster/`
+
+---
+
+# Step 17 — Deployment
 
 Production build (`npm run build`) served as static files by nginx, same origin as the
 Django backend — no `VITE_API_BASE_URL` needed in production since requests are relative.
@@ -642,6 +687,7 @@ without CORS being involved at all.
 | Employee detail | `GET /api/employees/{id}/`, `GET /api/employees/{id}/salary-periods/`, `GET /api/employees/{id}/salary-periods/{pid}/corrections/`, `POST /api/employees/{id}/salary-changes/`, `POST /api/employees/{id}/salary-corrections/`, `POST /api/employees/{id}/deactivate/`, `POST /api/employees/{id}/reactivate/` |
 | Employee form | `POST /api/employees/`, `PATCH /api/employees/{id}/`, plus the same reference-data GETs as the list page |
 | Reports | `GET /api/reports/{name}/` × 6 |
+| Roster upload | `POST /api/imports/roster/` |
 
-Not used by the frontend: `PATCH` on departments/roles/countries, and the roster upload
-endpoint — both out of scope per the decisions above.
+Not used by the frontend: `PATCH` on departments/roles/countries — reference data is
+seeded/maintained outside the app, not edited through it.
