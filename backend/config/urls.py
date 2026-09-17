@@ -1,3 +1,5 @@
+"""Root URL configuration: mounts the admin site and each app's API routes under /api/."""
+
 from django.contrib import admin
 from django.urls import include, path
 

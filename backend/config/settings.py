@@ -1,3 +1,5 @@
+"""Django settings. Env-driven throughout so the same file serves local dev and production."""
+
 import os
 from pathlib import Path
 
