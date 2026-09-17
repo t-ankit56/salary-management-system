@@ -14,3 +14,10 @@ export function recordSalaryChange(employeeId, { base, allowance, yearly_bonus, 
     body: JSON.stringify({ base, allowance, yearly_bonus, currency, effective_from }),
   })
 }
+
+export function correctSalaryPeriod(employeeId, { salary_period, base, allowance, yearly_bonus, reason }) {
+  return apiFetch(`/api/employees/${employeeId}/salary-corrections/`, {
+    method: 'POST',
+    body: JSON.stringify({ salary_period, base, allowance, yearly_bonus, reason }),
+  })
+}

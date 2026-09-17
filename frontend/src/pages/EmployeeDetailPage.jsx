@@ -22,6 +22,7 @@ function StatusBadge({ status }) {
 function EmployeeDetailPage() {
   const { id } = useParams()
   const [openModal, setOpenModal] = useState(null)
+  const [correctingPeriod, setCorrectingPeriod] = useState(null)
   const { employee } = useEmployee(id)
   const { history, expandedPeriodId, corrections, toggleCorrections, refetch } = useSalaryHistory(id)
 
@@ -53,13 +54,6 @@ function EmployeeDetailPage() {
               className="px-4 py-2.5 text-[13px] font-semibold text-white bg-blue-700 rounded-md hover:bg-blue-800 transition-colors"
             >
               Change Salary
-            </button>
-            <button
-              type="button"
-              onClick={() => setOpenModal('correct')}
-              className="px-4 py-2.5 text-[13px] font-semibold text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors"
-            >
-              Correct Salary
             </button>
             <button
               type="button"
@@ -109,6 +103,9 @@ function EmployeeDetailPage() {
                 <th className="text-center px-4 py-[11px] text-xs font-bold text-slate-500 uppercase tracking-wide">
                   Corrections
                 </th>
+                <th className="text-right px-4 py-[11px] text-xs font-bold text-slate-500 uppercase tracking-wide">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -134,10 +131,22 @@ function EmployeeDetailPage() {
                         <span className="text-slate-500">{period.correction_count}</span>
                       )}
                     </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCorrectingPeriod(period)
+                          setOpenModal('correct')
+                        }}
+                        className="text-[13px] font-semibold text-blue-700 hover:text-blue-800"
+                      >
+                        Correct
+                      </button>
+                    </td>
                   </tr>
                   {expandedPeriodId === period.id && (
                     <tr className="border-b border-slate-100 bg-slate-50">
-                      <td colSpan={7} className="px-4 py-3">
+                      <td colSpan={8} className="px-4 py-3">
                         <div className="flex flex-col gap-2">
                           {corrections.map((correction) => (
                             <div key={correction.id} className="text-[13px] text-slate-600">
@@ -169,8 +178,16 @@ function EmployeeDetailPage() {
           }}
         />
       )}
-      {openModal === 'correct' && (
-        <SalaryCorrectionModal period={history[0]} onClose={() => setOpenModal(null)} />
+      {openModal === 'correct' && correctingPeriod && (
+        <SalaryCorrectionModal
+          employeeId={employee.id}
+          period={correctingPeriod}
+          onClose={() => setOpenModal(null)}
+          onSuccess={() => {
+            refetch()
+            setOpenModal(null)
+          }}
+        />
       )}
       {openModal === 'status' && (
         <StatusChangeModal
