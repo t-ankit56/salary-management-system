@@ -1191,3 +1191,83 @@ second place it had been copied to. Wrote failing tests against both components 
 offered all four currencies — then removed the extra options from both.
 
 **Overrode:** nothing.
+
+
+## Frontend Step 16 — Roster upload
+
+**Tool:** Claude Code (Sonnet) → `frontend/design/` (Claude Design mockup),
+`pages/RosterUploadPage.jsx`, `api/imports.js`, `api/client.js`, `components/NavBar.jsx`,
+`App.jsx`, `docs/frontend_developer_doc.md`
+
+Asked Claude to "build the remaining file upload page." It didn't just build it — it
+checked first and flagged that `frontend_developer_doc.md` explicitly marks the roster
+upload endpoint as "not used by the frontend," even though the backend has supported it
+since backend Step 16 and it's in scope per `requirements.md`. Raised it as new scope rather
+than treating it as a gap in the existing plan.
+
+**My calls:**
+- Reach it from a new nav bar link ("Upload Roster"), not a button tucked into the employee
+  list page.
+- Design it in Claude Design first, matching this app's own established process for every
+  other page, rather than building directly.
+
+**Accepted:**
+- The mockup pulled its tokens (oklch values, spacing, font stack) straight from the
+  existing `.dc.html` files rather than approximating them — same page background, card,
+  input and button styles as every other page, no drift.
+- Built the same way as every other page: static layout committed with no tests, then a
+  red/green wire-to-API cycle.
+- Caught a real bug on its own while wiring the upload: `api/client.js`'s `apiFetch`
+  unconditionally set `Content-Type: application/json` whenever a body was present. Every
+  other write in the app sends JSON, so nothing had ever exercised a multipart body before —
+  forcing that header would have broken the file upload (the browser needs to set its own
+  `Content-Type`, with the boundary). Fixed test-first, in its own red/green pair, ahead of
+  the page's own wiring.
+- The all-or-nothing 400 response (`{errors: [...]}`, never `{detail}`) gets a dedicated
+  Row/Error table rather than the generic single-message banner every other form uses —
+  matches the backend's actual shape instead of forcing it through the existing
+  error-banner pattern.
+
+Updated `frontend_developer_doc.md` to match: added a Step 16 write-up in the same format as
+the rest of the build guide, renumbered Deployment to Step 17, and corrected the endpoints
+table — I asked for this once I'd confirmed the page worked in the browser myself.
+
+**Overrode:** nothing.
+
+
+## Fix — Local dev reference data out of sync with production (roster upload demo)
+
+**Tool:** Claude Code (Sonnet) → local dev database only, no application code
+
+Asked for an Excel file with ~100 new employees to demo the roster upload. Claude queried
+production's actual department/role/country names first rather than guessing or reusing
+local dev's, since countries are randomly Faker-generated per seed run and a mismatch would
+cause "unknown department/country" row errors. Verified the generated file against real
+production data.
+
+I then asked for 100 created *and* 100 updated in one file. Claude pulled 100 real
+employee_code/email pairs from production and reused their exact emails on the update rows
+(matching happens by employee_code, but the service also rejects a row whose email belongs
+to a different employee, so the emails had to be real too), verified again.
+
+**Conflict it surfaced:** I tried the file and reported "unknown country" — Claude's first
+instinct was to re-check production's country list (naturally, since that's what the file
+was built against), which of course still matched. I clarified I was testing on localhost,
+not production. Local dev's countries were seeded independently and don't match
+production's at all (only "Germany" overlaps, by chance) — a gap neither of us had
+accounted for until the file actually failed somewhere I hadn't specified I'd be testing.
+
+**My call:** rejected the obvious fix (regenerate the file for local dev's countries) in
+favor of the better one — sync local dev's `Country` rows to match production's names
+instead, so the same demo file works in either environment and this class of mismatch can't
+recur for whatever gets demoed next.
+
+**Accepted:** the rename needed two passes (set every row to a temporary unique placeholder,
+then to the final names) rather than one, since renaming straight to production's names hit
+the `Country.name` unique constraint the moment a new name matched an existing
+not-yet-renamed row. Reran the full backend test suite afterward, and dry-ran the actual
+demo file against `import_roster` inside a transaction that gets rolled back, printing
+`{created: 100, updated: 100}`, before telling me to retry — rather than asserting it would
+work.
+
+**Overrode:** nothing.
