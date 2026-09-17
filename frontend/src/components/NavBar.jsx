@@ -7,6 +7,7 @@ function linkClass({ isActive }) {
   }`
 }
 
+/** Top nav bar shown on every authenticated page: page links plus Log Out. */
 function NavBar({ onLogout }) {
   return (
     <nav className="bg-white border-b border-slate-200 px-8 py-3 flex items-center gap-2">

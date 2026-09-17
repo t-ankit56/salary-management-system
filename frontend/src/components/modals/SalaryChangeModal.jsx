@@ -9,6 +9,7 @@ const initialForm = {
   effective_from: '',
 }
 
+/** Records a new salary period (a raise) effective from a future or today date. */
 function SalaryChangeModal({ employeeId, onClose, onSuccess }) {
   const [form, setForm] = useState(initialForm)
   const [bannerError, setBannerError] = useState('')

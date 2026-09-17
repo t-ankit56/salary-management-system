@@ -8,6 +8,7 @@ const initialForm = {
   reason: '',
 }
 
+/** Corrects a specific past salary period's amounts in place, with a required reason. */
 function SalaryCorrectionModal({ employeeId, period, onClose, onSuccess }) {
   const [form, setForm] = useState(initialForm)
   const [bannerError, setBannerError] = useState('')

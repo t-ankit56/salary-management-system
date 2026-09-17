@@ -8,6 +8,7 @@ const confirmButtonClass = {
     'px-[18px] py-2.5 text-sm font-semibold text-white bg-blue-700 rounded-md hover:bg-blue-800 transition-colors',
 }
 
+/** Shared deactivate/reactivate confirmation modal; `mode` picks which action it performs. */
 function StatusChangeModal({ employeeId, mode, onClose, onSuccess }) {
   const isDeactivate = mode === 'deactivate'
   const [effectiveDate, setEffectiveDate] = useState('')
