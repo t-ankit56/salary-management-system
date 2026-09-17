@@ -12,6 +12,32 @@ const pageButtonClass =
 const activePageButtonClass =
   'px-3 py-[7px] text-[13px] font-semibold rounded-md border border-blue-700 bg-blue-700 text-white'
 
+const PAGE_NEIGHBORS = 2
+
+function pageNumbersWithEllipses(current, total) {
+  const pages = []
+  for (let page = 1; page <= total; page++) {
+    if (
+      page === 1 ||
+      page === total ||
+      (page >= current - PAGE_NEIGHBORS && page <= current + PAGE_NEIGHBORS)
+    ) {
+      pages.push(page)
+    }
+  }
+
+  const withEllipses = []
+  let previous
+  for (const page of pages) {
+    if (previous !== undefined && page - previous > 1) {
+      withEllipses.push('…')
+    }
+    withEllipses.push(page)
+    previous = page
+  }
+  return withEllipses
+}
+
 function StatusBadge({ status }) {
   const isActive = status === 'active'
   return (
@@ -40,7 +66,7 @@ function EmployeeListPage() {
   } = useEmployees()
 
   const totalPages = Math.max(1, Math.ceil(count / PAGE_SIZE))
-  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1)
+  const pageNumbers = pageNumbersWithEllipses(filters.page, totalPages)
   const rangeStart = count === 0 ? 0 : (filters.page - 1) * PAGE_SIZE + 1
   const rangeEnd = Math.min(filters.page * PAGE_SIZE, count)
 
@@ -182,16 +208,22 @@ function EmployeeListPage() {
             >
               Prev
             </button>
-            {pageNumbers.map((page) => (
-              <button
-                key={page}
-                type="button"
-                onClick={() => setPage(page)}
-                className={page === filters.page ? activePageButtonClass : pageButtonClass}
-              >
-                {page}
-              </button>
-            ))}
+            {pageNumbers.map((page, index) =>
+              page === '…' ? (
+                <span key={`ellipsis-${index}`} className="px-1.5 text-[13px] text-slate-400 select-none">
+                  …
+                </span>
+              ) : (
+                <button
+                  key={page}
+                  type="button"
+                  onClick={() => setPage(page)}
+                  className={page === filters.page ? activePageButtonClass : pageButtonClass}
+                >
+                  {page}
+                </button>
+              ),
+            )}
             <button
               type="button"
               onClick={() => setPage(Math.min(totalPages, filters.page + 1))}
