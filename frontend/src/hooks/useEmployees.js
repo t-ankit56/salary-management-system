@@ -41,5 +41,19 @@ export function useEmployees() {
     setFilters((prev) => ({ ...prev, page }))
   }
 
-  return { employees, count, departments, roles, countries, filters, setFilter, setPage }
+  function clearFilters() {
+    setFilters(initialFilters)
+  }
+
+  return {
+    employees,
+    count,
+    departments,
+    roles,
+    countries,
+    filters,
+    setFilter,
+    setPage,
+    clearFilters,
+  }
 }

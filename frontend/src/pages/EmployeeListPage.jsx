@@ -27,8 +27,17 @@ function StatusBadge({ status }) {
 
 function EmployeeListPage() {
   const navigate = useNavigate()
-  const { employees, count, departments, roles, countries, filters, setFilter, setPage } =
-    useEmployees()
+  const {
+    employees,
+    count,
+    departments,
+    roles,
+    countries,
+    filters,
+    setFilter,
+    setPage,
+    clearFilters,
+  } = useEmployees()
 
   const totalPages = Math.max(1, Math.ceil(count / PAGE_SIZE))
   const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -105,6 +114,13 @@ function EmployeeListPage() {
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="px-3 py-[9px] text-sm font-semibold text-slate-600 hover:text-slate-800"
+          >
+            Clear Filters
+          </button>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
