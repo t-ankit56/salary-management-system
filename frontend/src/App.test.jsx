@@ -99,3 +99,32 @@ it('does not show an error banner when the mount-time session check returns 403'
   await waitFor(() => expect(screen.getByLabelText('Email')).toBeInTheDocument())
   expect(screen.queryByRole('alert')).not.toBeInTheDocument()
 })
+
+it('shows navigation to Employees and Reports, and clicking Reports navigates there', async () => {
+  global.fetch = mockFetch([['/api/auth/me/', jsonResponse(200, { email: 'hr@acme.com' })]])
+
+  renderApp()
+
+  await waitFor(() => expect(screen.getByRole('heading', { name: 'Employees' })).toBeInTheDocument())
+
+  fireEvent.click(screen.getByRole('link', { name: 'Reports' }))
+
+  await waitFor(() =>
+    expect(screen.getByRole('heading', { name: 'Payroll Reports' })).toBeInTheDocument(),
+  )
+})
+
+it('clicking Log Out logs the user out and returns to the login page', async () => {
+  global.fetch = mockFetch([
+    ['/api/auth/me/', jsonResponse(200, { email: 'hr@acme.com' })],
+    ['/api/auth/logout/', jsonResponse(200)],
+  ])
+
+  renderApp()
+
+  await waitFor(() => expect(screen.getByRole('heading', { name: 'Employees' })).toBeInTheDocument())
+
+  fireEvent.click(screen.getByRole('button', { name: 'Log Out' }))
+
+  await waitFor(() => expect(screen.getByLabelText('Email')).toBeInTheDocument())
+})
