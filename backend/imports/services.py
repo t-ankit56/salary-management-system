@@ -1,3 +1,10 @@
+"""Bulk roster upload: parses an .xlsx file, upserts employees by employee_code.
+
+All-or-nothing — if any row fails validation, every failing row's error is collected and
+nothing is saved. Creates new employees with their opening salary period; updates only
+demographic fields for existing ones, never salary.
+"""
+
 from collections import Counter
 from decimal import Decimal, InvalidOperation
 from typing import BinaryIO
@@ -29,6 +36,8 @@ REQUIRED_COLUMNS = [
 
 
 class RosterUploadError(Exception):
+    """Raised with every row-level validation error collected, never just the first."""
+
     def __init__(self, errors: list[dict]):
         self.errors = errors
         super().__init__("Roster upload validation failed")

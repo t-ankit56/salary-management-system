@@ -1,3 +1,5 @@
+"""API view for bulk roster upload."""
+
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -8,6 +10,8 @@ from imports.services import RosterUploadError, import_roster
 
 
 class RosterUploadView(APIView):
+    """Accepts a multipart .xlsx roster; all-or-nothing, with row-level errors on failure."""
+
     parser_classes = [MultiPartParser]
 
     def post(self, request):
