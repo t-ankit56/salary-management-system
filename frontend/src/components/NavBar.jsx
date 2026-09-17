@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import acmeLogo from '../assets/acme-logo.webp'
 
 function linkClass({ isActive }) {
   return `px-3 py-2 text-sm font-semibold rounded-md transition-colors ${
@@ -9,6 +10,7 @@ function linkClass({ isActive }) {
 function NavBar({ onLogout }) {
   return (
     <nav className="bg-white border-b border-slate-200 px-8 py-3 flex items-center gap-2">
+      <img src={acmeLogo} alt="ACME Corporation" className="h-8 w-auto mr-4" />
       <NavLink to="/employees" className={linkClass}>
         Employees
       </NavLink>

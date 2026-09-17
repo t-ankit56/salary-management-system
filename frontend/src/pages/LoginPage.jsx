@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import acmeLogo from '../assets/acme-logo.webp'
 
 function LoginPage({ onLogin }) {
   const [email, setEmail] = useState('')
@@ -18,6 +19,7 @@ function LoginPage({ onLogin }) {
     <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 p-6">
       <div className="w-full max-w-[400px] bg-white border border-slate-200 rounded-lg shadow-sm px-9 py-10">
         <div className="text-center mb-7">
+          <img src={acmeLogo} alt="ACME Corporation" className="h-16 w-auto mx-auto mb-4" />
           <div className="text-xl font-bold text-slate-800 tracking-tight">
             Payroll &amp; Compensation Portal
           </div>
