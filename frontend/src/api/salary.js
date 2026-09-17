@@ -1,3 +1,5 @@
+/** Salary history, change, and correction endpoint calls. */
+
 import { apiFetch } from './client'
 
 export function getSalaryHistory(employeeId) {

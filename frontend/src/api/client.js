@@ -1,3 +1,9 @@
+/**
+ * Central fetch wrapper: adds the CSRF header on writes, credentials for the session
+ * cookie, and a JSON content-type unless the body is FormData (multipart uploads set
+ * their own). Dispatches `auth:unauthorized` on any 403 so `useAuth` can react centrally.
+ */
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
 function readCookie(name) {

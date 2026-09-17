@@ -1,3 +1,5 @@
+/** Employee and reference-data (departments/roles/countries) endpoint calls. */
+
 import { apiFetch } from './client'
 
 export function getEmployee(id) {

@@ -1,3 +1,5 @@
+/** Roster upload endpoint call. */
+
 import { apiFetch } from './client'
 
 export function uploadRoster(file) {
