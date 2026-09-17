@@ -1156,3 +1156,38 @@ for the final README commit, which sat local and unpushed until I pushed it.
 
 **Noted for later:** `/opt/salary-manager` is created and owned by `root` by default — cloning
 into it needs `chown` on that one subdirectory first, not `/opt` itself.
+
+
+## Fix — Employee list pagination overflow at scale
+
+**Tool:** Claude Code (Sonnet) → `pages/EmployeeListPage.jsx`, its test file
+
+Found this using the live app once it had 10,000 seeded employees: the page-number row
+overflowed off the right edge, since it rendered one button per page — 400 of them. Asked
+Claude to make it work like Django admin's page count instead.
+
+Wrote the failing test first (asserting a bounded number of numbered buttons, an ellipsis
+present, and no button for a page far from the current one) against the still-unfixed page,
+confirmed real red — the existing code rendered all 400 — then implemented a windowed
+algorithm: first page, last page, the current page's two neighbors on each side, `…` in the
+gaps.
+
+**Overrode:** nothing.
+
+
+## Fix — Currency dropdown restricted to USD
+
+**Tool:** Claude Code (Sonnet) → `pages/EmployeeFormPage.jsx`,
+`components/modals/SalaryChangeModal.jsx`, both test files
+
+Found this in production too: the employee-create form let me pick EUR/GBP/INR alongside
+USD, despite `docs/requirements.md` scoping the whole system to a single currency. Asked
+Claude to restrict the create-employee dropdown to USD only.
+
+**Accepted:** it found and fixed the identical dropdown in `SalaryChangeModal` too, not just
+the one I'd pointed at — same four hardcoded options, same out-of-scope violation, just a
+second place it had been copied to. Wrote failing tests against both components first
+(asserting the option list is exactly `['', 'USD']`), confirmed real red — both still
+offered all four currencies — then removed the extra options from both.
+
+**Overrode:** nothing.
