@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import SalaryChangeModal from './SalaryChangeModal'
 
@@ -19,6 +19,13 @@ function fillForm() {
 
 beforeEach(() => {
   vi.restoreAllMocks()
+})
+
+it('only offers USD in the currency dropdown, since the system is single-currency', () => {
+  render(<SalaryChangeModal employeeId={3} onClose={() => {}} onSuccess={() => {}} />)
+
+  const options = within(screen.getByLabelText('Currency')).getAllByRole('option')
+  expect(options.map((option) => option.value)).toEqual(['', 'USD'])
 })
 
 it('submits the entered values as strings to POST /api/employees/:id/salary-changes/', async () => {

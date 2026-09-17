@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, expect, it, vi } from 'vitest'
 import EmployeeFormPage from './EmployeeFormPage'
@@ -71,6 +71,15 @@ function setupFetch(createResponse) {
 
 beforeEach(() => {
   vi.restoreAllMocks()
+})
+
+it('only offers USD in the currency dropdown, since the system is single-currency', async () => {
+  setupFetch(jsonResponse(201, {}))
+  renderCreatePage()
+
+  await waitFor(() => expect(screen.getByLabelText('Department').children.length).toBeGreaterThan(1))
+  const options = within(screen.getByLabelText('Currency')).getAllByRole('option')
+  expect(options.map((option) => option.value)).toEqual(['', 'USD'])
 })
 
 it('submits every field, with money fields as strings, to POST /api/employees/', async () => {
