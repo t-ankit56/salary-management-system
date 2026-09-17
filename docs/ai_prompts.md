@@ -541,3 +541,22 @@ red, implemented `deactivateEmployee`/`reactivateEmployee`, added `refetch` to `
 and turned `StatusChangeModal` into a controlled form.*
 
 > yes, commit both
+
+
+## Frontend Steps 11-13 — Employee form: static layout, create, edit
+
+**Claude Code (Sonnet)**
+
+> start step 11. employee form page already in design. complete step 12 and 13 too.
+
+*Read `EmployeeFormPage.dc.html`, scaffolded the static form for both routes (flagged and
+resolved the currency-list mismatch with Step 8 and the undocumented reference-data gap along
+the way), committed. Wrote the three create-mode tests against the still-static form,
+confirmed red, implemented `createEmployee` and the create-path submit handler with the
+edit path left as a deliberate stub, committed. Extended the test file with the two edit-mode
+cases, confirmed red against that stub, implemented the pre-fill effect and the edit-path
+submit handler, committed. Auto Mode was active, so all five commits across the three steps
+went straight through after showing each proposed message, rather than waiting for an
+explicit go-ahead each time.
+
+> log this in the ai workflow log
