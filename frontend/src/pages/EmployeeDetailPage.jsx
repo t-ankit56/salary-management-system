@@ -36,6 +36,12 @@ function EmployeeDetailPage() {
   return (
     <div className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-[960px] mx-auto">
+        <Link
+          to="/employees"
+          className="inline-block text-[13px] font-semibold text-slate-600 hover:text-slate-800 mb-4"
+        >
+          ‹ Back to Employees
+        </Link>
         <div className="bg-white border border-slate-200 rounded-lg px-7 py-6 mb-5">
           <div className="flex items-center gap-3 flex-wrap mb-1">
             <h1 className="text-[22px] font-bold text-slate-800 m-0">

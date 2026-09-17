@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   createEmployee,
   getEmployee,
@@ -134,6 +134,12 @@ function EmployeeFormPage() {
   return (
     <div className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-[760px] mx-auto">
+        <Link
+          to={isEdit ? `/employees/${id}` : '/employees'}
+          className="inline-block text-[13px] font-semibold text-slate-600 hover:text-slate-800 mb-4"
+        >
+          ‹ Back
+        </Link>
         <h1 className="text-[22px] font-bold text-slate-800 m-0 mb-5">
           {isEdit ? 'Edit Employee' : 'New Employee'}
         </h1>
