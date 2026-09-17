@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { getCorrections, getSalaryHistory } from '../api/salary'
 
 export function useSalaryHistory(employeeId) {
@@ -6,9 +6,13 @@ export function useSalaryHistory(employeeId) {
   const [expandedPeriodId, setExpandedPeriodId] = useState(null)
   const [corrections, setCorrections] = useState([])
 
-  useEffect(() => {
-    getSalaryHistory(employeeId).then(({ data }) => setHistory(data ?? []))
+  const refetch = useCallback(() => {
+    return getSalaryHistory(employeeId).then(({ data }) => setHistory(data ?? []))
   }, [employeeId])
+
+  useEffect(() => {
+    refetch()
+  }, [refetch])
 
   async function toggleCorrections(periodId) {
     if (expandedPeriodId === periodId) {
@@ -20,5 +24,5 @@ export function useSalaryHistory(employeeId) {
     setExpandedPeriodId(periodId)
   }
 
-  return { history, expandedPeriodId, corrections, toggleCorrections }
+  return { history, expandedPeriodId, corrections, toggleCorrections, refetch }
 }

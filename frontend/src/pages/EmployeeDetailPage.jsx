@@ -23,7 +23,7 @@ function EmployeeDetailPage() {
   const { id } = useParams()
   const [openModal, setOpenModal] = useState(null)
   const { employee } = useEmployee(id)
-  const { history, expandedPeriodId, corrections, toggleCorrections } = useSalaryHistory(id)
+  const { history, expandedPeriodId, corrections, toggleCorrections, refetch } = useSalaryHistory(id)
 
   if (!employee) {
     return null
@@ -160,7 +160,14 @@ function EmployeeDetailPage() {
       </div>
 
       {openModal === 'change' && (
-        <SalaryChangeModal onClose={() => setOpenModal(null)} />
+        <SalaryChangeModal
+          employeeId={employee.id}
+          onClose={() => setOpenModal(null)}
+          onSuccess={() => {
+            refetch()
+            setOpenModal(null)
+          }}
+        />
       )}
       {openModal === 'correct' && (
         <SalaryCorrectionModal period={history[0]} onClose={() => setOpenModal(null)} />
