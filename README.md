@@ -29,7 +29,7 @@ Django · Django REST Framework · PostgreSQL · React · Docker
 
 ## Live deployment
 
-_URL to be added._
+https://acme.indiasouthcentral.cloudapp.azure.com/
 
 ## Running locally
 
