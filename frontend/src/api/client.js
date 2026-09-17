@@ -12,7 +12,7 @@ export async function apiFetch(path, options = {}) {
   if (method !== 'GET') {
     headers['X-CSRFToken'] = readCookie('csrftoken')
   }
-  if (options.body) {
+  if (options.body && !(options.body instanceof FormData)) {
     headers['Content-Type'] = 'application/json'
   }
 
