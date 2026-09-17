@@ -4,6 +4,20 @@ export function getEmployee(id) {
   return apiFetch(`/api/employees/${id}/`)
 }
 
+export function deactivateEmployee(id, effective_date) {
+  return apiFetch(`/api/employees/${id}/deactivate/`, {
+    method: 'POST',
+    body: JSON.stringify({ effective_date }),
+  })
+}
+
+export function reactivateEmployee(id, effective_date) {
+  return apiFetch(`/api/employees/${id}/reactivate/`, {
+    method: 'POST',
+    body: JSON.stringify({ effective_date }),
+  })
+}
+
 export function listEmployees({ department, role, country, status, search, page } = {}) {
   const params = new URLSearchParams()
   if (department) params.set('department', department)

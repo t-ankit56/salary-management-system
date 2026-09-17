@@ -23,8 +23,9 @@ function EmployeeDetailPage() {
   const { id } = useParams()
   const [openModal, setOpenModal] = useState(null)
   const [correctingPeriod, setCorrectingPeriod] = useState(null)
-  const { employee } = useEmployee(id)
-  const { history, expandedPeriodId, corrections, toggleCorrections, refetch } = useSalaryHistory(id)
+  const { employee, refetch: refetchEmployee } = useEmployee(id)
+  const { history, expandedPeriodId, corrections, toggleCorrections, refetch: refetchHistory } =
+    useSalaryHistory(id)
 
   if (!employee) {
     return null
@@ -173,7 +174,7 @@ function EmployeeDetailPage() {
           employeeId={employee.id}
           onClose={() => setOpenModal(null)}
           onSuccess={() => {
-            refetch()
+            refetchHistory()
             setOpenModal(null)
           }}
         />
@@ -184,15 +185,20 @@ function EmployeeDetailPage() {
           period={correctingPeriod}
           onClose={() => setOpenModal(null)}
           onSuccess={() => {
-            refetch()
+            refetchHistory()
             setOpenModal(null)
           }}
         />
       )}
       {openModal === 'status' && (
         <StatusChangeModal
+          employeeId={employee.id}
           mode={isActive ? 'deactivate' : 'reactivate'}
           onClose={() => setOpenModal(null)}
+          onSuccess={() => {
+            refetchEmployee()
+            setOpenModal(null)
+          }}
         />
       )}
     </div>
