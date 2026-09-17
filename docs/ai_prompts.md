@@ -622,3 +622,23 @@ containers with a real login + cross-origin create (misfired once on guessed ref
 ids, then confirmed 201 with the real ones), cleaned up the throwaway test data.*
 
 > log this in the ai workflow log
+
+
+## Fix — Top nav bar (Employees/Reports links, Log Out)
+
+**Claude Code (Sonnet)**
+
+> there is no way to go to reports page. what we should do is add a top bar with options to go to different pages
+
+*Noted a second reachability gap along the way: useAuth's logout() had no caller in the UI
+either, and asked whether to fold it into the same bar.*
+
+> "Yes, include Logout (Recommended)"
+
+*Wrote the two nav behaviors as tests first against the current App (no nav bar), confirmed
+red, added NavBar with react-router's NavLink for active-route styling, wired logout() to a
+real button for the first time.*
+
+> yes, commit both
+
+> log this in the ai workflow log

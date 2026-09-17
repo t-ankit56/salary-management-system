@@ -983,3 +983,26 @@ reference-data ids from the running database instead of guessing, reran, got `20
 real regression, a self-inflicted mistake in the verification script.
 
 **Overrode:** nothing.
+
+
+## Fix — Top nav bar (Employees/Reports links, Log Out)
+
+**Tool:** Claude Code (Sonnet) → `components/NavBar.jsx`, `App.jsx`, `App.test.jsx`
+
+I found this one too: no way to reach `/reports` from the UI at all, and told Claude exactly
+what I wanted built — "add a top bar with options to go to different pages" — rather than
+leaving the fix open-ended.
+
+**Conflict it surfaced:** `useAuth` has always exposed a working `logout()`, but nothing in
+the UI had ever called it — there was no way to log out either, a second reachability gap
+sitting right next to the one I'd flagged.
+
+**My call:** asked whether the same bar should include Logout since it was already going to
+exist; confirmed yes rather than leaving it as a separate later fix.
+
+**Accepted:** wrote the two behaviors as tests first against the current `App` (no nav bar at
+all yet) — clicking a Reports link navigates there, clicking Log Out returns to the login
+page — confirmed real red, then added `NavBar` (`react-router`'s `NavLink` for active-route
+styling) rendered above `<Routes>` whenever a user is authenticated.
+
+**Overrode:** nothing.
