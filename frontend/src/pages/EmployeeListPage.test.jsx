@@ -123,6 +123,36 @@ it('clicking a row navigates to that employee\'s detail page', async () => {
   expect(screen.getByText('Employee detail stub')).toBeInTheDocument()
 })
 
+it('clicking Clear Filters resets all filters and search back to defaults', async () => {
+  const fetchMock = setupFetch()
+  renderPage()
+
+  await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(4))
+
+  fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'active' } })
+  await waitFor(() => expect(fetchMock.mock.calls.at(-1)[0]).toContain('status=active'))
+
+  fireEvent.change(screen.getByLabelText('Department'), { target: { value: '3' } })
+  await waitFor(() => expect(fetchMock.mock.calls.at(-1)[0]).toContain('department=3'))
+
+  fireEvent.change(screen.getByPlaceholderText('Search by name or employee code'), {
+    target: { value: 'Jane' },
+  })
+  await waitFor(() => expect(fetchMock.mock.calls.at(-1)[0]).toContain('search=Jane'))
+
+  fireEvent.click(screen.getByRole('button', { name: 'Clear Filters' }))
+
+  await waitFor(() => {
+    const url = fetchMock.mock.calls.at(-1)[0]
+    expect(url).not.toContain('status=')
+    expect(url).not.toContain('department=')
+    expect(url).not.toContain('search=')
+  })
+  expect(screen.getByLabelText('Status')).toHaveValue('')
+  expect(screen.getByLabelText('Department')).toHaveValue('')
+  expect(screen.getByPlaceholderText('Search by name or employee code')).toHaveValue('')
+})
+
 it('changing page re-requests with the page param and does not follow the next URL from the response', async () => {
   const fetchMock = setupFetch({
     count: 30,
