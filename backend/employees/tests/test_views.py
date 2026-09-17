@@ -1,4 +1,7 @@
+import json
+
 import pytest
+from django.test import Client
 from rest_framework.test import APIClient
 
 from employees.models import Country, Department, Employee, EmploymentPeriod, Role
@@ -98,6 +101,43 @@ def test_create_employee_via_api_opens_both_periods(reference_data, user):
     employee = Employee.objects.get(employee_code="E001")
     assert EmploymentPeriod.objects.filter(employee=employee).exists()
     assert SalaryPeriod.objects.filter(employee=employee).exists()
+
+
+def test_create_employee_via_real_session_and_cross_origin_csrf(reference_data, user):
+    # force_authenticate skips Django's real CSRF enforcement; this uses a real session instead.
+    client = Client(enforce_csrf_checks=True)
+
+    login_response = client.post(
+        "/api/auth/login/",
+        data=json.dumps({"email": "hr@example.com", "password": "s3cret-pass"}),
+        content_type="application/json",
+    )
+    assert login_response.status_code == 200
+
+    csrf_token = client.cookies["csrftoken"].value
+
+    response = client.post(
+        "/api/employees/",
+        data=json.dumps(
+            {
+                "employee_code": "E002",
+                "first_name": "Jane",
+                "last_name": "Doe",
+                "email": "jane@example.com",
+                "department": reference_data["department"].id,
+                "role": reference_data["role"].id,
+                "country": reference_data["country"].id,
+                "hire_date": "2020-01-01",
+                "base": "50000",
+                "salary_effective_from": "2020-01-01",
+            }
+        ),
+        content_type="application/json",
+        HTTP_X_CSRFTOKEN=csrf_token,
+        HTTP_ORIGIN="http://localhost:5173",
+    )
+
+    assert response.status_code == 201
 
 
 def test_deactivate_endpoint_closes_open_period(reference_data, user):
